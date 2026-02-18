@@ -100,7 +100,7 @@ export async function createJobAndRunWorkoutGeneration(
   });
 
   try {
-    await setJobStatus(job.id, "running", { error: null });
+    await setJobStatus(job.id, "running", { error: undefined });
 
     const presets = (client as { presets_json?: { workout?: unknown } }).presets_json;
     let workoutInputs: Record<string, unknown> =
