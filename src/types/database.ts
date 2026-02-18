@@ -8,11 +8,11 @@ export type ClientInputsJson = {
   workoutInputs: Record<string, any>;
 };
 
-import type { MealPreset, WorkoutPreset } from "./presets";
+import type { MealPreset, WorkoutPreset, MealConstraintsOnly, WorkoutConstraintsOnly } from "./presets";
 
 export type ClientPresetsJson = {
-  meal?: MealPreset;
-  workout?: WorkoutPreset;
+  meal?: MealPreset | MealConstraintsOnly;
+  workout?: WorkoutPreset | WorkoutConstraintsOnly;
 };
 
 export type MealInputsLastUsed = Record<string, unknown>;

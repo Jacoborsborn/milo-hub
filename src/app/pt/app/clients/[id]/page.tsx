@@ -2,7 +2,7 @@ import { getClientById, deleteClient } from "../../../../../lib/services/clients
 import { listPlansForClient } from "../../../../../lib/services/plans";
 import { listPtTemplates } from "../../../../../lib/services/ptTemplatesServer";
 import { listMealTemplates } from "../../../../../lib/services/meal-templates";
-import { generateMealPlanForClient } from "../../../../templates/meals/actions";
+import { generateMealPlanFormAction } from "../../../../templates/meals/actions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Breadcrumbs from "@/components/pt/Breadcrumbs";
@@ -146,7 +146,8 @@ export default async function ClientDetailPage({
             </Link>
           )}
           {(client as { assigned_meal_program_id?: string | null }).assigned_meal_program_id ? (
-            <form action={generateMealPlanForClient.bind(null, id)} style={{ display: "inline" }}>
+            <form action={generateMealPlanFormAction} style={{ display: "inline" }}>
+              <input type="hidden" name="clientId" value={id} />
               <button
                 type="submit"
                 style={{ padding: "8px 16px", background: "#111", color: "white", border: "none", borderRadius: 6, fontSize: 14, fontWeight: 500, cursor: "pointer" }}

@@ -1,8 +1,9 @@
 import { listClients } from "../../../../lib/services/clients";
+import type { Client } from "../../../../types/database";
 import Link from "next/link";
 
 export default async function ClientsPage() {
-  let clients;
+  let clients: Client[];
   let error: string | null = null;
 
   try {

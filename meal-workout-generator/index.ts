@@ -8,10 +8,10 @@
 
 import Anthropic from "npm:@anthropic-ai/sdk@0.32.1";
 import OpenAI from "npm:openai@4.77.0";
-import { type Food } from "../_shared/food-map.ts";
-import { FOODS_DATA_LEAN, FOODS_BY_ID_LEAN, resolveCanonicalFoodId, resolveToLeanId } from "../_shared/food-map.lean.ts";
+import { type Food } from "../_shared/food-map";
+import { FOODS_DATA_LEAN, FOODS_BY_ID_LEAN, resolveCanonicalFoodId, resolveToLeanId } from "../_shared/food-map.lean";
 import foodsLightweight from "./foods_lightweight.json" assert { type: "json" };
-import { buildGroceryListFromPlan } from "../_shared/grocery-builder.ts";
+import { buildGroceryListFromPlan } from "../_shared/grocery-builder";
 import groceryRules from "../_shared/grocery_rules_uk.json" assert { type: "json" };
 
 const corsHeaders = {

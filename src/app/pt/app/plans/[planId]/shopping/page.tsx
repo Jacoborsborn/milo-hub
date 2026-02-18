@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import Breadcrumbs from "@/components/pt/Breadcrumbs";
 import PlanContextualBar from "@/components/pt/plan/PlanContextualBar";
 import PlanTabs from "@/components/pt/plan/PlanTabs";

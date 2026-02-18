@@ -19,15 +19,21 @@
 
 import groceryRulesData from "./grocery_rules_uk.json" with { type: "json" };
 import packCatalogImport from "./pack_catalog.json" with { type: "json" };
-import { type Food, FOODS_DATA } from "./food-map.ts";
-import { FOODS_BY_ID_LEAN, resolveToLeanId } from "./food-map.lean.ts";
-import { selectPacks } from "./pack-selector.ts";
+import { type Food, FOODS_DATA } from "./food-map";
+import { FOODS_BY_ID_LEAN, resolveToLeanId } from "./food-map.lean";
+import { selectPacks } from "./pack-selector";
 
-const UNIT_CONVERSION_AUDIT = Deno.env.get("UNIT_CONVERSION_AUDIT") === "true";
-const COOKED_DRY_AUDIT = Deno.env.get("COOKED_DRY_AUDIT") === "true";
-const COOKED_DRY_LOOKUP_FALLBACK = Deno.env.get("COOKED_DRY_LOOKUP_FALLBACK") === "true";
-const PACK_AUDIT_ENABLED = Deno.env.get("GROCERY_PACK_AUDIT") === "true";
-const GROCERY_UNIT_DEBUG = Deno.env.get("GROCERY_UNIT_DEBUG") === "true";
+function getEnv(key: string): string | undefined {
+  const g = globalThis as unknown as { Deno?: { env: { get: (k: string) => string | undefined } } };
+  if (typeof g.Deno !== "undefined") return g.Deno.env.get(key);
+  return (process as NodeJS.Process & { env: Record<string, string | undefined> }).env[key];
+}
+
+const UNIT_CONVERSION_AUDIT = getEnv("UNIT_CONVERSION_AUDIT") === "true";
+const COOKED_DRY_AUDIT = getEnv("COOKED_DRY_AUDIT") === "true";
+const COOKED_DRY_LOOKUP_FALLBACK = getEnv("COOKED_DRY_LOOKUP_FALLBACK") === "true";
+const PACK_AUDIT_ENABLED = getEnv("GROCERY_PACK_AUDIT") === "true";
+const GROCERY_UNIT_DEBUG = getEnv("GROCERY_UNIT_DEBUG") === "true";
 
 // --- Unit normalization helpers (safe, no density-based conversions) ---
 function normalizePlanAmount(
@@ -335,7 +341,7 @@ export function buildGroceryListFromPlan(
   options?: { debugExplain?: boolean }
 ): GroceryList & { groceryExplain?: GroceryExplainLine[] } {
   const startTime = Date.now();
-  const debugExplain = options?.debugExplain ?? (typeof Deno !== "undefined" && Deno.env.get("DEBUG_GROCERY_EXPLAIN") === "true");
+  const debugExplain = options?.debugExplain ?? (getEnv("DEBUG_GROCERY_EXPLAIN") === "true");
   const explainLines: GroceryExplainLine[] = [];
 
   // Extract unitWeightG from meta for count-based calculations
@@ -469,7 +475,7 @@ export function buildGroceryListFromPlan(
   }
   
   // Optional dev-only audit: ensure every FOODS_DATA id has a grocery rule
-  if (Deno.env.get("GROCERY_ID_AUDIT") === "true") {
+  if (getEnv("GROCERY_ID_AUDIT") === "true") {
     try {
       const groceryRuleIds = new Set(Object.keys(groceryRulesData));
       const missingFromGrocery: string[] = [];
@@ -781,7 +787,7 @@ export function buildGroceryListFromPlan(
         // DEV-ONLY error: foodId must exist
         if (!foodId) {
           const errorMsg = `❌ [Grocery Builder] CRITICAL: Ingredient missing foodId. Ingredient data: ${JSON.stringify(ing)}. This should never happen - all ingredients must have foodId.`;
-          if (Deno.env.get("DENO_ENV") === "development" || Deno.env.get("NODE_ENV") === "development") {
+          if (getEnv("DENO_ENV") === "development" || getEnv("NODE_ENV") === "development") {
             throw new Error(errorMsg);
           } else {
             console.error(errorMsg);
@@ -794,7 +800,7 @@ export function buildGroceryListFromPlan(
         if (!resolvedId) {
           // DEV-ONLY error: foodId must resolve to lean list
           const errorMsg = `❌ [Grocery Builder] CRITICAL: Could not resolve foodId "${foodId}" using resolveToLeanId. This should never happen - foodId must exist in canonical food database.`;
-          if (Deno.env.get("DENO_ENV") === "development" || Deno.env.get("NODE_ENV") === "development") {
+          if (getEnv("DENO_ENV") === "development" || getEnv("NODE_ENV") === "development") {
             throw new Error(errorMsg);
           } else {
             console.error(errorMsg);
@@ -979,7 +985,7 @@ export function buildGroceryListFromPlan(
     if (!food) {
       // DEV-ONLY error: foodId must exist in foodsMap
       const errorMsg = `❌ [Grocery Builder] CRITICAL: foodId "${foodId}" not found in foodsMap. This should never happen - ingredient is missing from food database.`;
-      if (Deno.env.get("DENO_ENV") === "development" || Deno.env.get("NODE_ENV") === "development") {
+      if (getEnv("DENO_ENV") === "development" || getEnv("NODE_ENV") === "development") {
         throw new Error(errorMsg);
       } else {
         console.error(errorMsg);
@@ -1419,7 +1425,7 @@ export function buildGroceryListFromPlan(
         // e.g., food map might say "Grains" but GroceryMap.json says "Carbohydrates"
         // We use GroceryMap.json category, not food map category
         // Only log in dev mode to avoid noise
-        if (Deno.env.get("DENO_ENV") === "development" || Deno.env.get("NODE_ENV") === "development") {
+        if (getEnv("DENO_ENV") === "development" || getEnv("NODE_ENV") === "development") {
           console.log(`   ✅ [Grocery Builder] Using GroceryMap.json category "${category}" for ${foodId} (food map has "${foodMapCategory}" - ignoring)`);
         }
       }

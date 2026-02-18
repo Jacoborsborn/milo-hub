@@ -99,7 +99,7 @@ export async function POST(
       payload.meal_template_id ??
       (client as { assigned_meal_program_id?: string | null }).assigned_meal_program_id;
 
-    await setJobStatus(jobId, "running", { error: null });
+    await setJobStatus(jobId, "running", { error: undefined });
 
     const planIds: string[] = [];
 

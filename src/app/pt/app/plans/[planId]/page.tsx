@@ -67,6 +67,7 @@ export default function PlanDetailPage({
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
+  const [weekCommencingPickerOpen, setWeekCommencingPickerOpen] = useState(false);
 
   useEffect(() => {
     params.then((p) => {
@@ -92,7 +93,7 @@ export default function PlanDetailPage({
   useEffect(() => {
     supabaseBrowser()
       .auth.getUser()
-      .then(({ data }) => setCurrentUserId(data.user?.id ?? null));
+      .then(({ data }: { data: { user?: { id?: string } | null } }) => setCurrentUserId(data.user?.id ?? null));
   }, []);
 
   const handleCopy = async () => {
@@ -173,9 +174,11 @@ export default function PlanDetailPage({
 
   const handleExerciseChange: OnExerciseChange = useCallback((weekIdx, dayIdx, exIdx, updates) => {
     setEditedContentJson((prev) => {
-      if (!prev?.weeks?.[weekIdx]?.days?.[dayIdx]?.exercises) return prev;
-      const next = deepCopy(prev);
-      const ex = next.weeks![weekIdx].days![dayIdx].exercises![exIdx];
+      type ContentWithWeeks = { weeks?: { days?: { exercises?: unknown[] }[] }[] };
+      const p = prev as ContentWithWeeks | null;
+      if (!p?.weeks?.[weekIdx]?.days?.[dayIdx]?.exercises) return prev;
+      const next = deepCopy(prev) as ContentWithWeeks;
+      const ex = next.weeks?.[weekIdx]?.days?.[dayIdx]?.exercises?.[exIdx] as Record<string, unknown> | undefined;
       if (ex && typeof ex === "object" && !Array.isArray(ex)) {
         if (updates.name !== undefined) ex.name = updates.name;
         if (updates.sets !== undefined) ex.sets = updates.sets;
@@ -323,12 +326,16 @@ export default function PlanDetailPage({
   const weekCommencingLabel = new Date(weekCommencingIso).toLocaleDateString(undefined, { dateStyle: "medium" });
   const coachName = plan.coach_display_name ?? "Your coach";
 
-  const dayTotalsForSignals = days.map((d) => ({
-    kcal: d.totalCalories ?? (d.meals ?? []).reduce((s, m) => s + (m.macrosPerPortion?.calories ?? 0), 0),
-    p: (d.meals ?? []).reduce((s, m) => s + (m.macrosPerPortion?.protein_g ?? 0), 0),
-    c: (d.meals ?? []).reduce((s, m) => s + (m.macrosPerPortion?.carbs_g ?? 0), 0),
-    f: (d.meals ?? []).reduce((s, m) => s + (m.macrosPerPortion?.fat_g ?? 0), 0),
-  }));
+  type Macros = { calories?: number; protein_g?: number; carbs_g?: number; fat_g?: number };
+  const dayTotalsForSignals = days.map((d) => {
+    const macros = (m: { macrosPerPortion?: unknown }) => (m.macrosPerPortion as Macros | undefined);
+    return {
+      kcal: d.totalCalories ?? (d.meals ?? []).reduce((s, m) => s + (macros(m)?.calories ?? 0), 0),
+      p: (d.meals ?? []).reduce((s, m) => s + (macros(m)?.protein_g ?? 0), 0),
+      c: (d.meals ?? []).reduce((s, m) => s + (macros(m)?.carbs_g ?? 0), 0),
+      f: (d.meals ?? []).reduce((s, m) => s + (macros(m)?.fat_g ?? 0), 0),
+    };
+  });
   const targetKcal = typeof dailyCaloriesTarget === "number" && dailyCaloriesTarget > 0 ? dailyCaloriesTarget : null;
   const alignmentScore = (actual: number, target: number) =>
     target <= 0 ? null : Math.max(0, Math.min(100, 100 - (Math.abs(actual - target) / target) * 100));

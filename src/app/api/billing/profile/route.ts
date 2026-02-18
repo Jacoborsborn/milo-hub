@@ -1,6 +1,13 @@
 import { supabaseServer } from "../../../../lib/supabase/server";
 import { NextResponse } from "next/server";
 
+type BillingProfile = {
+  subscription_status: string | null;
+  subscription_tier: string | null;
+  trial_ends_at: string | null;
+  brand_logo_url: string | null;
+};
+
 export async function GET() {
   const supabase = await supabaseServer();
   const { data: userData } = await supabase.auth.getUser();
@@ -10,26 +17,34 @@ export async function GET() {
   }
 
   let selectColumns = "subscription_status, subscription_tier, trial_ends_at, brand_logo_url";
-  let { data: profile, error } = await supabase
+  let profile: BillingProfile | null;
+  let error: unknown;
+  const first = await supabase
     .from("profiles")
     .select(selectColumns)
     .eq("id", userData.user.id)
     .maybeSingle();
+  profile = first.data as BillingProfile | null;
+  error = first.error;
 
   // If brand_logo_url column doesn't exist yet (migration not run), retry without it
-  if (error?.code === "42703") {
+  if (error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "42703") {
     selectColumns = "subscription_status, subscription_tier, trial_ends_at";
     const retry = await supabase
       .from("profiles")
       .select(selectColumns)
       .eq("id", userData.user.id)
       .maybeSingle();
-    profile = retry.data ? { ...retry.data, brand_logo_url: null } : null;
+    const retryData = retry.data;
+    profile = retryData != null && typeof retryData === "object" && !Array.isArray(retryData)
+      ? { ...(retryData as Record<string, unknown>), brand_logo_url: null } as BillingProfile
+      : null;
     error = retry.error;
   }
 
   if (error) {
-    console.error("[GET /api/billing/profile]", error.message, error.code, error.details);
+    const err = error as { message?: string; code?: string; details?: unknown };
+    console.error("[GET /api/billing/profile]", err.message, err.code, err.details);
     return NextResponse.json(null, { status: 500 });
   }
 

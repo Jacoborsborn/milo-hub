@@ -2,7 +2,7 @@
 // Canonical master food map with strict diet/allergen tagging and robust resolution.
 // Generated from foods_master_final_nodry.js; do not hand-edit unless you know what you're doing.
 
-import { isAllowedIngredientName as _isAllowedIngredientName, resolveIngredientAlias as _resolveIngredientAlias } from "./canonical-ingredients.ts";
+import { isAllowedIngredientName as _isAllowedIngredientName, resolveIngredientAlias as _resolveIngredientAlias } from "./canonical-ingredients";
 
 export interface Food {
   id: string;

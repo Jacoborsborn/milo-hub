@@ -9,9 +9,9 @@
  *   - resolveCanonicalFoodId: alias-aware resolver restricted to lean ids
  */
 
-import type { Food } from "./food-map.ts";
-import { resolveFoodId } from "./food-map.ts";
-import { FOODS_DATA_LEAN } from "./food-map-lean-data.ts";
+import type { Food } from "./food-map";
+import { resolveFoodId } from "./food-map";
+import { FOODS_DATA_LEAN } from "./food-map-lean-data";
 
 export { FOODS_DATA_LEAN };
 

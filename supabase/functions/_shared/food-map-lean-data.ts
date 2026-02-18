@@ -3,7 +3,7 @@
  * Same layout as food-map.ts: one food per line for middleware and consistency.
  * Regenerate: deno run -A scripts/generate-lean-food-map.ts
  */
-import type { Food } from "./food-map.ts";
+import type { Food } from "./food-map";
 
 export const FOODS_DATA_LEAN: Food[] = [
   {"id":"chicken_breast","displayName":"Chicken breast","category":"protein","defaultUnit":"grams","macrosPer100":{"calories":120,"protein_g":23,"carbs_g":0,"fat_g":2,"fibre_g":0},"metadata":{"allergens":["chicken","meat"],"dietsAllowed":["balanced"],"isAnimalProduct":true}},

@@ -178,3 +178,10 @@ export async function generateMealPlanForClient(clientId: string, overrides?: Re
   const { planId } = await assignMealTemplateToClient(assignedId, clientId, overrides);
   redirect(`/pt/app/plans/${planId}`);
 }
+
+/** Form action wrapper: reads clientId from form and runs generateMealPlanForClient. */
+export async function generateMealPlanFormAction(formData: FormData) {
+  "use server";
+  const clientId = formData.get("clientId");
+  if (typeof clientId === "string" && clientId) await generateMealPlanForClient(clientId);
+}

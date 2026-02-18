@@ -19,9 +19,9 @@
 
 import groceryRulesData from "./grocery_rules_uk.json" with { type: "json" };
 import packCatalogImport from "./pack_catalog.json" with { type: "json" };
-import { type Food, FOODS_DATA } from "./food-map.ts";
-import { FOODS_BY_ID_LEAN, resolveToLeanId } from "./food-map.lean.ts";
-import { selectPacks } from "./pack-selector.ts";
+import { type Food, FOODS_DATA } from "./food-map";
+import { FOODS_BY_ID_LEAN, resolveToLeanId } from "./food-map.lean";
+import { selectPacks } from "./pack-selector";
 
 const UNIT_CONVERSION_AUDIT = Deno.env.get("UNIT_CONVERSION_AUDIT") === "true";
 const COOKED_DRY_AUDIT = Deno.env.get("COOKED_DRY_AUDIT") === "true";
