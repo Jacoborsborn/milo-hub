@@ -1,0 +1,92 @@
+import { supabaseServer } from "../../../../lib/supabase/server";
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  const supabase = await supabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+
+  if (!userData?.user) {
+    return NextResponse.json(null, { status: 401 });
+  }
+
+  let selectColumns = "subscription_status, subscription_tier, trial_ends_at, brand_logo_url";
+  let { data: profile, error } = await supabase
+    .from("profiles")
+    .select(selectColumns)
+    .eq("id", userData.user.id)
+    .maybeSingle();
+
+  // If brand_logo_url column doesn't exist yet (migration not run), retry without it
+  if (error?.code === "42703") {
+    selectColumns = "subscription_status, subscription_tier, trial_ends_at";
+    const retry = await supabase
+      .from("profiles")
+      .select(selectColumns)
+      .eq("id", userData.user.id)
+      .maybeSingle();
+    profile = retry.data ? { ...retry.data, brand_logo_url: null } : null;
+    error = retry.error;
+  }
+
+  if (error) {
+    console.error("[GET /api/billing/profile]", error.message, error.code, error.details);
+    return NextResponse.json(null, { status: 500 });
+  }
+
+  // No row (e.g. user created before profile trigger): return default so billing page can render
+  if (!profile) {
+    return NextResponse.json({
+      subscription_status: "free",
+      subscription_tier: null,
+      trial_ends_at: null,
+      brand_logo_url: null,
+    });
+  }
+
+  return NextResponse.json(profile);
+}
+
+export async function PATCH(request: Request) {
+  const supabase = await supabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+
+  if (!userData?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let body: { brand_logo_url?: string | null };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  if (body.brand_logo_url !== undefined && body.brand_logo_url !== null && typeof body.brand_logo_url !== "string") {
+    return NextResponse.json({ error: "brand_logo_url must be a string or null" }, { status: 400 });
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ brand_logo_url: body.brand_logo_url ?? null })
+    .eq("id", userData.user.id);
+
+  if (error) {
+    // Column may not exist if migration not run yet
+    if (error.code === "42703") {
+      return NextResponse.json({ ok: true });
+    }
+    console.error("[PATCH /api/billing/profile]", error);
+    return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      Allow: "GET, PATCH, OPTIONS",
+    },
+  });
+}

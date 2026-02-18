@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), ui-sans-serif, sans-serif;
+}
+
+/* Print styles for plan export */
+@media print {
+  @page {
+    margin: 1.5cm;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .print-plan-page {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .print-plan-page * {
+    background: transparent !important;
+    color: #000 !important;
+    border-color: #333 !important;
+  }
+
+  /* Page break after each week block (target week cards, not phases) */
+  .print-plan-content div.space-y-6 div.space-y-6 > * {
+    break-after: page;
+  }
+
+  .print-plan-content div.space-y-6 div.space-y-6 > *:last-child {
+    break-after: auto;
+  }
+
+  /* Avoid breaking exercise cards across pages */
+  .print-plan-content [class*="rounded-lg"][class*="border"] {
+    break-inside: avoid;
+  }
+}
+
+/* Plan workspace density: compact reduces padding and font size for faster PT scanning */
+.plan-workspace--compact {
+  --plan-section-gap: 0.75rem;
+}
+.plan-workspace--compact [data-plan-authority] {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+.plan-workspace--compact .text-lg {
+  font-size: 1rem;
+}
+.plan-workspace--compact .text-sm {
+  font-size: 0.8125rem;
+}
+
+/* Prevent horizontal overflow on plan pages (mobile) */
+@media (max-width: 768px) {
+  [data-density] {
+    overflow-x: hidden;
+  }
+}

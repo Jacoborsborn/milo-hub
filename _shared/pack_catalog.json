@@ -1,0 +1,2564 @@
+{
+  "basmati_rice": [
+    {
+      "pack_id": "basmati_rice_500g",
+      "pack_g": 500,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "basmati_rice_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "basmati_rice_2000g",
+      "pack_g": 2000,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "beef_lean": [
+    {
+      "pack_id": "beef_lean_500g",
+      "pack_g": 500,
+      "price_gbp": 5.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "beef_lean_1000g",
+      "pack_g": 1000,
+      "price_gbp": 8.1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "beef_mince_5_fat": [
+    {
+      "pack_id": "beef_mince_5_fat_500g",
+      "pack_g": 500,
+      "price_gbp": 5.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "beef_mince_5_fat_1000g",
+      "pack_g": 1000,
+      "price_gbp": 8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "bell_peppers": [
+    {
+      "pack_id": "bell_peppers_164g",
+      "pack_g": 164,
+      "price_gbp": 0.45,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "bell_peppers_492g",
+      "pack_g": 492,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "blackberries": [
+    {
+      "pack_id": "blackberries_150g",
+      "pack_g": 150,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "blackberries_300g",
+      "pack_g": 300,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "blueberries": [
+    {
+      "pack_id": "blueberries_200g",
+      "pack_g": 200,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "blueberries_400g",
+      "pack_g": 400,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "broccoli": [
+    {
+      "pack_id": "broccoli_300g",
+      "pack_g": 300,
+      "price_gbp": 0.55,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "broccoli_500g",
+      "pack_g": 500,
+      "price_gbp": 0.85,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "broccoli_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "brown_rice": [
+    {
+      "pack_id": "brown_rice_500g",
+      "pack_g": 500,
+      "price_gbp": 0.95,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "brown_rice_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.65,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "brown_rice_2000g",
+      "pack_g": 2000,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "cabbage": [
+    {
+      "pack_id": "cabbage_500g",
+      "pack_g": 500,
+      "price_gbp": 0.75,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "cabbage_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "chicken_breast": [
+    {
+      "pack_id": "chicken_breast_300g",
+      "pack_g": 300,
+      "price_gbp": 2.4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "chicken_breast_650g",
+      "pack_g": 650,
+      "price_gbp": 4.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "chicken_breast_1000g",
+      "pack_g": 1000,
+      "price_gbp": 7.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "chicken_breast_1500g",
+      "pack_g": 1500,
+      "price_gbp": 10.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "chicken_breast_2000g",
+      "pack_g": 2000,
+      "price_gbp": 12,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "chicken_thigh_skinless": [
+    {
+      "pack_id": "chicken_thigh_skinless_500g",
+      "pack_g": 500,
+      "price_gbp": 4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "chicken_thigh_skinless_750g",
+      "pack_g": 750,
+      "price_gbp": 5.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "chicken_thigh_skinless_1000g",
+      "pack_g": 1000,
+      "price_gbp": 7,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "fresh_cod_fillets": [
+    {
+      "pack_id": "fresh_cod_fillets_280g",
+      "pack_g": 280,
+      "price_gbp": 3.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "fresh_cod_fillets_400g",
+      "pack_g": 400,
+      "price_gbp": 5.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "fresh_cod_fillets_600g",
+      "pack_g": 600,
+      "price_gbp": 7.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "frozen_cod_fillets": [
+    {
+      "pack_id": "frozen_cod_fillets_400g",
+      "pack_g": 400,
+      "price_gbp": 3.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "frozen_cod_fillets_1000g",
+      "pack_g": 1000,
+      "price_gbp": 7.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "frozen_cod_fillets_2000g",
+      "pack_g": 2000,
+      "price_gbp": 14,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "cottage_cheese": [
+    {
+      "pack_id": "cottage_cheese_300g",
+      "pack_g": 300,
+      "price_gbp": 1.1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "cottage_cheese_500g",
+      "pack_g": 500,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "cottage_cheese_600g",
+      "pack_g": 600,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "cottage_cheese_1000g",
+      "pack_g": 1000,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "couscous": [
+    {
+      "pack_id": "couscous_500g",
+      "pack_g": 500,
+      "price_gbp": 1.1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "couscous_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.9,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "dried_cranberries": [
+    {
+      "pack_id": "dried_cranberries_150g",
+      "pack_g": 150,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "dried_cranberries_300g",
+      "pack_g": 300,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "dried_dates_pitted_whole": [
+    {
+      "pack_id": "dried_dates_pitted_whole_200g",
+      "pack_g": 200,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "dried_dates_pitted_whole_250g",
+      "pack_g": 250,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "dried_dates_pitted_whole_500g",
+      "pack_g": 500,
+      "price_gbp": 3.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "dried_dates_pitted_whole_1000g",
+      "pack_g": 1000,
+      "price_gbp": 6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "medjool_dates_premium": [
+    {
+      "pack_id": "medjool_dates_premium_200g",
+      "pack_g": 200,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "medjool_dates_premium_500g",
+      "pack_g": 500,
+      "price_gbp": 6.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "falafel": [
+    {
+      "pack_id": "falafel_200g",
+      "pack_g": 200,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "falafel_400g",
+      "pack_g": 400,
+      "price_gbp": 3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "feta_cheese": [
+    {
+      "pack_id": "feta_cheese_200g",
+      "pack_g": 200,
+      "price_gbp": 1.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "feta_cheese_500g",
+      "pack_g": 500,
+      "price_gbp": 4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "figs_dried": [
+    {
+      "pack_id": "figs_dried_200g",
+      "pack_g": 200,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "figs_dried_500g",
+      "pack_g": 500,
+      "price_gbp": 4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "focaccia_bread": [
+    {
+      "pack_id": "focaccia_bread_250g",
+      "pack_g": 250,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "focaccia_bread_400g",
+      "pack_g": 400,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "frozen_mixed_vegetables": [
+    {
+      "pack_id": "frozen_mixed_vegetables_500g",
+      "pack_g": 500,
+      "price_gbp": 0.85,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "frozen_mixed_vegetables_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.35,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "frozen_mixed_vegetables_2000g",
+      "pack_g": 2000,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "ginger": [
+    {
+      "pack_id": "ginger_150g",
+      "pack_g": 150,
+      "price_gbp": 0.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "ginger_300g",
+      "pack_g": 300,
+      "price_gbp": 1.4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "goat_cheese": [
+    {
+      "pack_id": "goat_cheese_150g",
+      "pack_g": 150,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "goat_cheese_300g",
+      "pack_g": 300,
+      "price_gbp": 3.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "granola": [
+    {
+      "pack_id": "granola_400g",
+      "pack_g": 400,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "granola_1000g",
+      "pack_g": 1000,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "grapefruit": [
+    {
+      "pack_id": "grapefruit_300g",
+      "pack_g": 300,
+      "price_gbp": 0.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "grapes": [
+    {
+      "pack_id": "grapes_500g",
+      "pack_g": 500,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "grapes_1000g",
+      "pack_g": 1000,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "greek_yogurt_0_fat": [
+    {
+      "pack_id": "greek_yogurt_0_fat_500g",
+      "pack_g": 500,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "greek_yogurt_0_fat_1000g",
+      "pack_g": 1000,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "greek_yogurt_5_fat": [
+    {
+      "pack_id": "greek_yogurt_5_fat_500g",
+      "pack_g": 500,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "greek_yogurt_5_fat_1000g",
+      "pack_g": 1000,
+      "price_gbp": 3.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "greek_yogurt_with_honey": [
+    {
+      "pack_id": "greek_yogurt_with_honey_450g",
+      "pack_g": 450,
+      "price_gbp": 2.3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "greek_yogurt_with_honey_1000g",
+      "pack_g": 1000,
+      "price_gbp": 4.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "greek_yogurt": [
+    {
+      "pack_id": "greek_yogurt_500g",
+      "pack_g": 500,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "greek_yogurt_1000g",
+      "pack_g": 1000,
+      "price_gbp": 3.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "green_beans": [
+    {
+      "pack_id": "green_beans_250g",
+      "pack_g": 250,
+      "price_gbp": 1.1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "green_beans_500g",
+      "pack_g": 500,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "green_bell_pepper": [
+    {
+      "pack_id": "green_bell_pepper_180g",
+      "pack_g": 180,
+      "price_gbp": 0.9,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "green_curry_paste": [
+    {
+      "pack_id": "green_curry_paste_200g",
+      "pack_g": 200,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "green_curry_paste_400g",
+      "pack_g": 400,
+      "price_gbp": 2.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "ground_beef": [
+    {
+      "pack_id": "ground_beef_500g",
+      "pack_g": 500,
+      "price_gbp": 4.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "ground_beef_1000g",
+      "pack_g": 1000,
+      "price_gbp": 9,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "haddock": [
+    {
+      "pack_id": "haddock_200g",
+      "pack_g": 200,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "haddock_400g",
+      "pack_g": 400,
+      "price_gbp": 6.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "halloumi": [
+    {
+      "pack_id": "halloumi_225g",
+      "pack_g": 225,
+      "price_gbp": 3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "halloumi_450g",
+      "pack_g": 450,
+      "price_gbp": 5.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "harissa_paste": [
+    {
+      "pack_id": "harissa_paste_200g",
+      "pack_g": 200,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "harissa_paste_400g",
+      "pack_g": 400,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "hummus": [
+    {
+      "pack_id": "hummus_200g",
+      "pack_g": 200,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "hummus_400g",
+      "pack_g": 400,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "jasmine_rice": [
+    {
+      "pack_id": "jasmine_rice_500g",
+      "pack_g": 500,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "jasmine_rice_1000g",
+      "pack_g": 1000,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "jasmine_rice_2000g",
+      "pack_g": 2000,
+      "price_gbp": 3.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "kale": [
+    {
+      "pack_id": "kale_200g",
+      "pack_g": 200,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "kale_500g",
+      "pack_g": 500,
+      "price_gbp": 2.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "kimchi": [
+    {
+      "pack_id": "kimchi_250g",
+      "pack_g": 250,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "kimchi_500g",
+      "pack_g": 500,
+      "price_gbp": 3.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "lamb": [
+    {
+      "pack_id": "lamb_500g",
+      "pack_g": 500,
+      "price_gbp": 7.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "lamb_1000g",
+      "pack_g": 1000,
+      "price_gbp": 14,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "leek": [
+    {
+      "pack_id": "leek_300g",
+      "pack_g": 300,
+      "price_gbp": 0.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "lemon": [
+    {
+      "pack_id": "lemon_120g",
+      "pack_g": 120,
+      "price_gbp": 0.3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "lemongrass": [
+    {
+      "pack_id": "lemongrass_40g",
+      "pack_g": 40,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "lemongrass_100g",
+      "pack_g": 100,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "lentils": [
+    {
+      "pack_id": "lentils_500g",
+      "pack_g": 500,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "lentils_1000g",
+      "pack_g": 1000,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "lupin_beans": [
+    {
+      "pack_id": "lupin_beans_200g",
+      "pack_g": 200,
+      "price_gbp": 2.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "lupin_beans_400g",
+      "pack_g": 400,
+      "price_gbp": 4.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "mackerel": [
+    {
+      "pack_id": "mackerel_200g",
+      "pack_g": 200,
+      "price_gbp": 3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "mackerel_400g",
+      "pack_g": 400,
+      "price_gbp": 5.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "mango": [
+    {
+      "pack_id": "mango_400g",
+      "pack_g": 400,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "maple_syrup": [
+    {
+      "pack_id": "maple_syrup_250ml",
+      "pack_g": 250,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "maple_syrup_500ml",
+      "pack_g": 500,
+      "price_gbp": 6.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "masa_harina": [
+    {
+      "pack_id": "masa_harina_500g",
+      "pack_g": 500,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "masa_harina_1000g",
+      "pack_g": 1000,
+      "price_gbp": 3.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "miso_paste": [
+    {
+      "pack_id": "miso_paste_200g",
+      "pack_g": 200,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "miso_paste_400g",
+      "pack_g": 400,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "mixed_fruit": [
+    {
+      "pack_id": "mixed_fruit_250g",
+      "pack_g": 250,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "mixed_fruit_500g",
+      "pack_g": 500,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "mixed_mushrooms": [
+    {
+      "pack_id": "mixed_mushrooms_300g",
+      "pack_g": 300,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "mixed_mushrooms_500g",
+      "pack_g": 500,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "mixed_salad_leaves": [
+    {
+      "pack_id": "mixed_salad_leaves_100g",
+      "pack_g": 100,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "mixed_salad_leaves_200g",
+      "pack_g": 200,
+      "price_gbp": 1.7,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "mixed_vegetables": [
+    {
+      "pack_id": "mixed_vegetables_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "mixed_vegetables_2000g",
+      "pack_g": 2000,
+      "price_gbp": 3.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "mozzarella": [
+    {
+      "pack_id": "mozzarella_125g",
+      "pack_g": 125,
+      "price_gbp": 0.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "mozzarella_250g",
+      "pack_g": 250,
+      "price_gbp": 1.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "muesli": [
+    {
+      "pack_id": "muesli_500g",
+      "pack_g": 500,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "muesli_1000g",
+      "pack_g": 1000,
+      "price_gbp": 2.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "mung_beans_sprouted": [
+    {
+      "pack_id": "mung_beans_sprouted_200g",
+      "pack_g": 200,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "mung_beans_sprouted_400g",
+      "pack_g": 400,
+      "price_gbp": 2.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "mushrooms": [
+    {
+      "pack_id": "mushrooms_250g",
+      "pack_g": 250,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "mushrooms_500g",
+      "pack_g": 500,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "nectarine": [
+    {
+      "pack_id": "nectarine_150g",
+      "pack_g": 150,
+      "price_gbp": 0.35,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "nectarine_1000g",
+      "pack_g": 1000,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "oat_yogurt_plain": [
+    {
+      "pack_id": "oat_yogurt_plain_400g",
+      "pack_g": 400,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "oat_yogurt_plain_1000g",
+      "pack_g": 1000,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "okra": [
+    {
+      "pack_id": "okra_200g",
+      "pack_g": 200,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "okra_500g",
+      "pack_g": 500,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "onion": [
+    {
+      "pack_id": "onion_180g",
+      "pack_g": 180,
+      "price_gbp": 0.3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "onion_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "orange": [
+    {
+      "pack_id": "orange_180g",
+      "pack_g": 180,
+      "price_gbp": 0.3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "orange_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "pak_choi": [
+    {
+      "pack_id": "pak_choi_200g",
+      "pack_g": 200,
+      "price_gbp": 0.9,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "paneer": [
+    {
+      "pack_id": "paneer_225g",
+      "pack_g": 225,
+      "price_gbp": 2.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "paneer_450g",
+      "pack_g": 450,
+      "price_gbp": 4.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "parsnip": [
+    {
+      "pack_id": "parsnip_500g",
+      "pack_g": 500,
+      "price_gbp": 0.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "parsnip_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "passata": [
+    {
+      "pack_id": "passata_500g",
+      "pack_g": 500,
+      "price_gbp": 0.9,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "passata_700g",
+      "pack_g": 700,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "pea_milk_unsweetened": [
+    {
+      "pack_id": "pea_milk_unsweetened_1000ml",
+      "pack_g": 1000,
+      "price_gbp": 1.4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "pea_milk_unsweetened_2000ml",
+      "pack_g": 2000,
+      "price_gbp": 2.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "peanut_butter": [
+    {
+      "pack_id": "peanut_butter_340g",
+      "pack_g": 340,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "peanut_butter_1000g",
+      "pack_g": 1000,
+      "price_gbp": 4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "peanuts": [
+    {
+      "pack_id": "peanuts_250g",
+      "pack_g": 250,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "peanuts_500g",
+      "pack_g": 500,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "pear": [
+    {
+      "pack_id": "pear_180g",
+      "pack_g": 180,
+      "price_gbp": 0.35,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "pear_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "pesto": [
+    {
+      "pack_id": "pesto_190g",
+      "pack_g": 190,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "pesto_340g",
+      "pack_g": 340,
+      "price_gbp": 2.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "pickled_beets": [
+    {
+      "pack_id": "pickled_beets_340g",
+      "pack_g": 340,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "pickled_beets_540g",
+      "pack_g": 540,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "pickled_cucumbers": [
+    {
+      "pack_id": "pickled_cucumbers_370g",
+      "pack_g": 370,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "pickled_cucumbers_670g",
+      "pack_g": 670,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "plantain": [
+    {
+      "pack_id": "plantain_300g",
+      "pack_g": 300,
+      "price_gbp": 0.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "plantain_600g",
+      "pack_g": 600,
+      "price_gbp": 1.1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "plum": [
+    {
+      "pack_id": "plum_70g",
+      "pack_g": 70,
+      "price_gbp": 0.3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "plum_500g",
+      "pack_g": 500,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "pomegranate_molasses": [
+    {
+      "pack_id": "pomegranate_molasses_250ml",
+      "pack_g": 250,
+      "price_gbp": 2.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "pomegranate_molasses_500ml",
+      "pack_g": 500,
+      "price_gbp": 4.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "pomegranate_seeds": [
+    {
+      "pack_id": "pomegranate_seeds_100g",
+      "pack_g": 100,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "pomegranate_seeds_200g",
+      "pack_g": 200,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "pork": [
+    {
+      "pack_id": "pork_500g",
+      "pack_g": 500,
+      "price_gbp": 4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "pork_1000g",
+      "pack_g": 1000,
+      "price_gbp": 7.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "potatoes": [
+    {
+      "pack_id": "potatoes_1000g",
+      "pack_g": 1000,
+      "price_gbp": 0.85,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "potatoes_2500g",
+      "pack_g": 2500,
+      "price_gbp": 1.75,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "potatoes_5000g",
+      "pack_g": 5000,
+      "price_gbp": 3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "prawns": [
+    {
+      "pack_id": "prawns_400g",
+      "pack_g": 400,
+      "price_gbp": 5.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "prawns_1000g",
+      "pack_g": 1000,
+      "price_gbp": 13.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "prosciutto": [
+    {
+      "pack_id": "prosciutto_100g",
+      "pack_g": 100,
+      "price_gbp": 3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "prosciutto_200g",
+      "pack_g": 200,
+      "price_gbp": 5.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "quark": [
+    {
+      "pack_id": "quark_250g",
+      "pack_g": 250,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "quark_500g",
+      "pack_g": 500,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "quinoa": [
+    {
+      "pack_id": "quinoa_500g",
+      "pack_g": 500,
+      "price_gbp": 2.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "quinoa_1000g",
+      "pack_g": 1000,
+      "price_gbp": 4.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "radish_kimchi": [
+    {
+      "pack_id": "radish_kimchi_250g",
+      "pack_g": 250,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "radish_kimchi_500g",
+      "pack_g": 500,
+      "price_gbp": 3.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "raspberries": [
+    {
+      "pack_id": "raspberries_150g",
+      "pack_g": 150,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "raspberries_300g",
+      "pack_g": 300,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "red_bell_pepper": [
+    {
+      "pack_id": "red_bell_pepper_180g",
+      "pack_g": 180,
+      "price_gbp": 0.9,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "red_curry_paste": [
+    {
+      "pack_id": "red_curry_paste_200g",
+      "pack_g": 200,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "red_curry_paste_400g",
+      "pack_g": 400,
+      "price_gbp": 2.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "red_lentils": [
+    {
+      "pack_id": "red_lentils_500g",
+      "pack_g": 500,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "red_lentils_1000g",
+      "pack_g": 1000,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "red_miso_paste": [
+    {
+      "pack_id": "red_miso_paste_200g",
+      "pack_g": 200,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "red_miso_paste_400g",
+      "pack_g": 400,
+      "price_gbp": 3.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "red_onion": [
+    {
+      "pack_id": "red_onion_180g",
+      "pack_g": 180,
+      "price_gbp": 0.3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "red_onion_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "rice_milk_unsweetened": [
+    {
+      "pack_id": "rice_milk_unsweetened_1000ml",
+      "pack_g": 1000,
+      "price_gbp": 1.3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "rice_milk_unsweetened_2000ml",
+      "pack_g": 2000,
+      "price_gbp": 2.4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "rice_paper_wrappers": [
+    {
+      "pack_id": "rice_paper_wrappers_140g",
+      "pack_g": 140,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "rice_snack_cake_flavoured": [
+    {
+      "pack_id": "rice_snack_cake_flavoured_120g",
+      "pack_g": 120,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "rice_snack_cake_flavoured_240g",
+      "pack_g": 240,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "ricotta": [
+    {
+      "pack_id": "ricotta_250g",
+      "pack_g": 250,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "ricotta_500g",
+      "pack_g": 500,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "rocket_arugula": [
+    {
+      "pack_id": "rocket_arugula_60g",
+      "pack_g": 60,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "rocket_arugula_120g",
+      "pack_g": 120,
+      "price_gbp": 1.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "rolled_oats": [
+    {
+      "pack_id": "rolled_oats_500g",
+      "pack_g": 500,
+      "price_gbp": 0.85,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "rolled_oats_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.35,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "rolled_oats_2000g",
+      "pack_g": 2000,
+      "price_gbp": 2.4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "romaine_lettuce": [
+    {
+      "pack_id": "romaine_lettuce_300g",
+      "pack_g": 300,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "romaine_lettuce_400g",
+      "pack_g": 400,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "salami": [
+    {
+      "pack_id": "salami_100g",
+      "pack_g": 100,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "salami_225g",
+      "pack_g": 225,
+      "price_gbp": 4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "salmon": [
+    {
+      "pack_id": "salmon_300g",
+      "pack_g": 300,
+      "price_gbp": 6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "salmon_600g",
+      "pack_g": 600,
+      "price_gbp": 12,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "salsa": [
+    {
+      "pack_id": "salsa_300g",
+      "pack_g": 300,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "salsa_600g",
+      "pack_g": 600,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "seitan": [
+    {
+      "pack_id": "seitan_200g",
+      "pack_g": 200,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "seitan_400g",
+      "pack_g": 400,
+      "price_gbp": 5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "semi_skimmed_milk": [
+    {
+      "pack_id": "semi_skimmed_milk_1000ml",
+      "pack_g": 1000,
+      "price_gbp": 1.1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "semi_skimmed_milk_2000ml",
+      "pack_g": 2000,
+      "price_gbp": 2.1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "shiitake_mushrooms": [
+    {
+      "pack_id": "shiitake_mushrooms_150g",
+      "pack_g": 150,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "shiitake_mushrooms_250g",
+      "pack_g": 250,
+      "price_gbp": 3.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "shrimp": [
+    {
+      "pack_id": "shrimp_400g",
+      "pack_g": 400,
+      "price_gbp": 5.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "shrimp_1000g",
+      "pack_g": 1000,
+      "price_gbp": 13.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "skimmed_milk": [
+    {
+      "pack_id": "skimmed_milk_1000ml",
+      "pack_g": 1000,
+      "price_gbp": 1.05,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "skimmed_milk_2000ml",
+      "pack_g": 2000,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "smoked_mackerel": [
+    {
+      "pack_id": "smoked_mackerel_200g",
+      "pack_g": 200,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "smoked_mackerel_300g",
+      "pack_g": 300,
+      "price_gbp": 5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "sourdough_bread": [
+    {
+      "pack_id": "sourdough_bread_400g",
+      "pack_g": 400,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "sourdough_bread_800g",
+      "pack_g": 800,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "soy_chunks_tvp": [
+    {
+      "pack_id": "soy_chunks_tvp_250g",
+      "pack_g": 250,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "soy_chunks_tvp_500g",
+      "pack_g": 500,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "soy_cream_single": [
+    {
+      "pack_id": "soy_cream_single_250ml",
+      "pack_g": 250,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "soy_cream_single_500ml",
+      "pack_g": 500,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "soy_yogurt_plain": [
+    {
+      "pack_id": "soy_yogurt_plain_400g",
+      "pack_g": 400,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "soy_yogurt_plain_1000g",
+      "pack_g": 1000,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "spinach": [
+    {
+      "pack_id": "spinach_240g",
+      "pack_g": 240,
+      "price_gbp": 1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "spinach_400g",
+      "pack_g": 400,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "strawberries": [
+    {
+      "pack_id": "strawberries_400g",
+      "pack_g": 400,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "strawberries_600g",
+      "pack_g": 600,
+      "price_gbp": 3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "sushi_rice": [
+    {
+      "pack_id": "sushi_rice_1000g",
+      "pack_g": 1000,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "sushi_rice_2000g",
+      "pack_g": 2000,
+      "price_gbp": 3.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "sweet_potato": [
+    {
+      "pack_id": "sweet_potato_300g",
+      "pack_g": 300,
+      "price_gbp": 0.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "sweet_potato_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "tempeh_bacon": [
+    {
+      "pack_id": "tempeh_bacon_200g",
+      "pack_g": 200,
+      "price_gbp": 3,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "tempeh_bacon_300g",
+      "pack_g": 300,
+      "price_gbp": 4.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "tempeh": [
+    {
+      "pack_id": "tempeh_200g",
+      "pack_g": 200,
+      "price_gbp": 2.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "tempeh_400g",
+      "pack_g": 400,
+      "price_gbp": 4.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "tofu": [
+    {
+      "pack_id": "tofu_280g",
+      "pack_g": 280,
+      "price_gbp": 1.6,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "tofu_396g",
+      "pack_g": 396,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "tofu_600g",
+      "pack_g": 600,
+      "price_gbp": 2.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "tomato_sauce": [
+    {
+      "pack_id": "tomato_sauce_500g",
+      "pack_g": 500,
+      "price_gbp": 0.9,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "tomato_sauce_700g",
+      "pack_g": 700,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "tomatoes": [
+    {
+      "pack_id": "tomatoes_400g",
+      "pack_g": 400,
+      "price_gbp": 0.95,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "tomatoes_750g",
+      "pack_g": 750,
+      "price_gbp": 1.65,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "tomatoes_1000g",
+      "pack_g": 1000,
+      "price_gbp": 2.1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "trout": [
+    {
+      "pack_id": "trout_200g",
+      "pack_g": 200,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "trout_400g",
+      "pack_g": 400,
+      "price_gbp": 6.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "turkey_ham": [
+    {
+      "pack_id": "turkey_ham_120g",
+      "pack_g": 120,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "turkey_ham_240g",
+      "pack_g": 240,
+      "price_gbp": 3.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "turkey_mince_5_fat": [
+    {
+      "pack_id": "turkey_mince_5_fat_500g",
+      "pack_g": 500,
+      "price_gbp": 2.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "turkey_mince_5_fat_1000g",
+      "pack_g": 1000,
+      "price_gbp": 4.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "turkey": [
+    {
+      "pack_id": "turkey_500g",
+      "pack_g": 500,
+      "price_gbp": 4.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "turkey_1000g",
+      "pack_g": 1000,
+      "price_gbp": 7.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "vegan_cheese_coconut_oil_base": [
+    {
+      "pack_id": "vegan_cheese_coconut_oil_base_200g",
+      "pack_g": 200,
+      "price_gbp": 2.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "vegan_cheese_coconut_oil_base_400g",
+      "pack_g": 400,
+      "price_gbp": 4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "venison_lean": [
+    {
+      "pack_id": "venison_lean_300g",
+      "pack_g": 300,
+      "price_gbp": 5.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "venison_lean_500g",
+      "pack_g": 500,
+      "price_gbp": 8.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "walnuts": [
+    {
+      "pack_id": "walnuts_200g",
+      "pack_g": 200,
+      "price_gbp": 2.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "walnuts_400g",
+      "pack_g": 400,
+      "price_gbp": 4.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "watermelon": [
+    {
+      "pack_id": "watermelon_2500g",
+      "pack_g": 2500,
+      "price_gbp": 1.8,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "watermelon_5000g",
+      "pack_g": 5000,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "white_bread": [
+    {
+      "pack_id": "white_bread_400g",
+      "pack_g": 400,
+      "price_gbp": 0.75,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "white_bread_800g",
+      "pack_g": 800,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "white_miso_paste": [
+    {
+      "pack_id": "white_miso_paste_200g",
+      "pack_g": 200,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "white_miso_paste_400g",
+      "pack_g": 400,
+      "price_gbp": 3.5,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "white_rice": [
+    {
+      "pack_id": "white_rice_500g",
+      "pack_g": 500,
+      "price_gbp": 0.75,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "white_rice_1000g",
+      "pack_g": 1000,
+      "price_gbp": 1.25,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    },
+    {
+      "pack_id": "white_rice_2000g",
+      "pack_g": 2000,
+      "price_gbp": 2.4,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "whole_wheat_couscous": [
+    {
+      "pack_id": "whole_wheat_couscous_500g",
+      "pack_g": 500,
+      "price_gbp": 1.2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "whole_wheat_couscous_1000g",
+      "pack_g": 1000,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ],
+  "wholegrain_pasta": [
+    {
+      "pack_id": "wholegrain_pasta_500g",
+      "pack_g": 500,
+      "price_gbp": 1.1,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": true
+    },
+    {
+      "pack_id": "wholegrain_pasta_1000g",
+      "pack_g": 1000,
+      "price_gbp": 2,
+      "store": "Tesco",
+      "tier": "low",
+      "is_preferred": false
+    }
+  ]
+}
