@@ -88,7 +88,7 @@ function mergeMealInputs(
   overrides: Record<string, unknown> | undefined
 ): Record<string, unknown> {
   // Structure from program (template) only
-  const structure = { ...MEAL_STRUCTURE_DEFAULTS };
+  const structure: { dietaryPreference: string; mealsPerDay: number; days: number; dietGoal: string } = { ...MEAL_STRUCTURE_DEFAULTS };
   if (templateDefaults?.dietaryPreference != null) structure.dietaryPreference = String(templateDefaults.dietaryPreference);
   if (templateDefaults?.mealsPerDay != null) structure.mealsPerDay = Number(templateDefaults.mealsPerDay) || 4;
   if (templateDefaults?.days != null) structure.days = Number(templateDefaults.days) || 7;
