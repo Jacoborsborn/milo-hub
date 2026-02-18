@@ -28,9 +28,9 @@ export default function NeedsAttention({
 }: NeedsAttentionProps) {
   const totalIssues = overdueCount + dueSoonCount + noPlanCount;
   const items: AttentionItem[] = [
-    { id: "overdue", label: overdueCount === 1 ? "plan overdue" : "plans overdue", count: overdueCount, filter: "overdue" },
-    { id: "due_soon", label: dueSoonCount === 1 ? "plan due soon" : "plans due soon", count: dueSoonCount, filter: "due_soon" },
-    { id: "no_plan", label: noPlanCount === 1 ? "client has no plan" : "clients have no plan", count: noPlanCount, filter: "no_plan" },
+    { id: "overdue", label: overdueCount === 1 ? "plan overdue" : "plans overdue", count: overdueCount, filter: "overdue" as const },
+    { id: "due_soon", label: dueSoonCount === 1 ? "plan due soon" : "plans due soon", count: dueSoonCount, filter: "due_soon" as const },
+    { id: "no_plan", label: noPlanCount === 1 ? "client has no plan" : "clients have no plan", count: noPlanCount, filter: "no_plan" as const },
   ].filter((i) => i.count > 0);
 
   if (items.length === 0) {

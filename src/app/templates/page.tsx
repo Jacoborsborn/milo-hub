@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/browser";
 import TemplatesMealsContent from "./meals/TemplatesMealsContent";
 import { builtInWorkoutTemplates, getWorkoutDefaultsForApi } from "@/lib/constants/builtInWorkoutTemplates";
-import { createWorkoutTemplate } from "@/lib/services/workoutTemplates";
+import { createWorkoutTemplate, type WorkoutTemplateDefaults } from "@/lib/services/workoutTemplates";
 
 type TemplateRow = {
   id: string;

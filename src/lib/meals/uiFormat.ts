@@ -83,7 +83,7 @@ export function loadDayCompletion(keyPrefix: string, dayIndex: number): Record<s
     if (!raw) return {};
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     return typeof parsed === "object" && parsed !== null
-      ? Object.fromEntries(Object.entries(parsed).filter(([, v]) => v === true))
+      ? (Object.fromEntries(Object.entries(parsed).filter(([, v]) => v === true)) as Record<string, boolean>)
       : {};
   } catch {
     return {};

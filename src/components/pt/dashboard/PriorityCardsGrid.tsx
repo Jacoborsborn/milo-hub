@@ -142,7 +142,8 @@ export default function PriorityCardsGrid({ items, loading }: PriorityCardsGridP
     };
   }, [items]);
 
-  const getCount = (key: TabKey) => (key === "all" ? counts.all : key === "no_plan" ? counts.no_plan : counts[key]);
+  const getCount = (key: TabKey) =>
+    key === "all" ? counts.all : key === "no_plan" || key === "plan_needed" ? counts.no_plan : counts[key];
 
   return (
     <section id="todays-priorities" className="rounded-xl border border-neutral-200 bg-white shadow-sm overflow-hidden">

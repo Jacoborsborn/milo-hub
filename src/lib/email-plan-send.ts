@@ -153,7 +153,7 @@ support@meetmilo.app`;
   const { data, error } = await resend.emails.send({
     from: FROM,
     to: [params.to],
-    reply_to: params.replyTo,
+    replyTo: params.replyTo,
     subject,
     html,
     text,
