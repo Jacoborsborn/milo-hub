@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 
 // IMPORTANT: Webhooks must use the raw body for signature verification.
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+    event = getStripe().webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
@@ -112,7 +112,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true });
       }
 
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
       const mapped = mapStripeToStatus(subscription);
       const intelligence = subscriptionToIntelligenceFields(subscription);
 
@@ -197,7 +197,7 @@ export async function POST(req: Request) {
         const subId = typeof invoiceSub === "string" ? invoiceSub : invoiceSub?.id;
         if (subId) {
           try {
-            const sub = await stripe.subscriptions.retrieve(subId);
+            const sub = await getStripe().subscriptions.retrieve(subId);
             userId = sub.metadata?.user_id ?? null;
           } catch {
             // ignore
