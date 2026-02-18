@@ -1,40 +1,27 @@
 import { createBrowserClient } from "@supabase/ssr";
+import { getSupabaseEnv } from "./env";
 
-// Singleton Supabase client for browser use
-// This ensures only one GoTrueClient instance exists in the browser context
+// Singleton Supabase client for browser use (lazy; never created at import time)
 let supabaseInstance: ReturnType<typeof createBrowserClient> | null = null;
 
 function getSupabaseClient() {
-  // Only create client in browser environment
   if (typeof window === "undefined") {
     throw new Error("Browser Supabase client should not be used on the server");
   }
+  if (supabaseInstance) return supabaseInstance;
 
-  // Return existing instance if already created
-  if (supabaseInstance) {
-    return supabaseInstance;
-  }
-
-  // Create new instance
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
+  const env = getSupabaseEnv();
+  if (!env) {
     throw new Error(
       "Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY"
     );
   }
 
-  // Dev-only: Log Supabase URL to verify configuration
   if (process.env.NODE_ENV === "development") {
-    console.log("[Supabase Config] URL:", supabaseUrl);
-    console.log("[Supabase Config] Expected:", "https://cbufoyjjjmaimmzmwrpr.supabase.co");
-    if (supabaseUrl !== "https://cbufoyjjjmaimmzmwrpr.supabase.co") {
-      console.warn("[Supabase Config] ⚠️ URL mismatch! Check .env.local");
-    }
+    console.log("[Supabase Config] URL:", env.url);
   }
 
-  supabaseInstance = createBrowserClient(supabaseUrl, supabaseAnonKey);
+  supabaseInstance = createBrowserClient(env.url, env.anonKey);
   return supabaseInstance;
 }
 

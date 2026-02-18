@@ -1,15 +1,9 @@
-import { redirect } from "next/navigation";
-import { supabaseServer } from "@/lib/supabase/server";
-
+// Static page: no Supabase or auth at build time. Middleware protects /pt/app/* at runtime.
 export const metadata = {
   title: "Terms & Conditions | Milo Hub",
 };
 
-export default async function TermsPage() {
-  const supabase = await supabaseServer();
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) redirect("/pt/auth/login");
-
+export default function TermsPage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="rounded-xl border border-neutral-200 bg-white shadow-sm px-6 py-8 sm:px-8 sm:py-10">

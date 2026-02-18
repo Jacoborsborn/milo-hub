@@ -1,13 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "./lib/supabase/middleware";
 import { createServerClient } from "@supabase/ssr";
+import { getSupabaseEnv } from "./lib/supabase/env";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  const env = getSupabaseEnv();
 
-  // Skip if env vars are missing
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    // If trying to access protected route without env vars, redirect to login
+  if (!env) {
     if (path.startsWith("/pt/app")) {
       const url = request.nextUrl.clone();
       url.pathname = "/pt/auth/login";
@@ -16,13 +16,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // keep session fresh + cookies synced
   const response = await updateSession(request);
 
-  // create supabase client using the *updated* response cookie handler
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    env.url,
+    env.anonKey,
     {
       cookies: {
         getAll() {
