@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-export type PlanTabId = "meals" | "shopping" | "overview";
+export type PlanTabId = "meals" | "shopping";
 
 type TabItem = {
   id: PlanTabId;
@@ -34,7 +34,6 @@ export default function PlanTabs({
       count: shoppingSectionCount,
       countLabel: "sections",
     },
-    { id: "overview", label: "Overview", href: `/pt/app/plans/${planId}` },
   ];
 
   return (
@@ -52,20 +51,6 @@ export default function PlanTabs({
                 ? ` (${tab.count} ${tab.countLabel})`
                 : ` (${tab.count})`
               : "";
-
-          if (tab.id === "overview") {
-            return (
-              <span
-                key={tab.id}
-                role="tab"
-                aria-current={isActive ? "true" : undefined}
-                aria-disabled
-                className="shrink-0 px-4 py-2 rounded-full text-sm font-medium text-neutral-400 cursor-default"
-              >
-                Overview
-              </span>
-            );
-          }
 
           return (
             <Link

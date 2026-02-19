@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/browser";
 import TemplatesMealsContent from "./meals/TemplatesMealsContent";
+import CreateProgramModal from "./CreateProgramModal";
 import { builtInWorkoutTemplates, getWorkoutDefaultsForApi } from "@/lib/constants/builtInWorkoutTemplates";
 import { createWorkoutTemplate, type WorkoutTemplateDefaults } from "@/lib/services/workoutTemplates";
 
@@ -26,7 +27,10 @@ function formatChip(value: string): string {
 
 export default function TemplatesPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const tab = (searchParams.get("tab") === "meals" ? "meals" : "workouts") as "workouts" | "meals";
+  const createOpen = searchParams.get("create") === "1";
+  const [mealRefreshKey, setMealRefreshKey] = useState(0);
 
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
@@ -145,11 +149,8 @@ export default function TemplatesPage() {
         <>
           {/* My programs */}
           <section>
-            <div className="flex justify-between items-center mb-2">
+            <div className="mb-2">
               <h2 className="text-lg font-semibold">My programs</h2>
-              <Link href="/templates/create" className="rounded-lg bg-neutral-800 text-white px-4 py-2 text-sm font-medium">
-                New Program
-              </Link>
             </div>
             {loading && <p className="text-neutral-500">Loading...</p>}
             {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -263,7 +264,15 @@ export default function TemplatesPage() {
         </>
       )}
 
-      {tab === "meals" && <TemplatesMealsContent />}
+      {tab === "meals" && <TemplatesMealsContent mealRefreshKey={mealRefreshKey} />}
+
+      <CreateProgramModal
+        open={createOpen}
+        defaultType={tab === "meals" ? "meal" : "workout"}
+        onClose={() => router.replace(tab === "meals" ? "/templates?tab=meals" : "/templates")}
+        onWorkoutCreated={loadWorkouts}
+        onMealCreated={() => setMealRefreshKey((k) => k + 1)}
+      />
     </div>
   );
 }

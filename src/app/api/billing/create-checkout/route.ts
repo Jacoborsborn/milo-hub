@@ -23,29 +23,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid tier" }, { status: 400 });
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("stripe_customer_id")
+    .eq("id", userData.user.id)
+    .maybeSingle();
+
+  const existingCustomerId = profile?.stripe_customer_id?.trim() || null;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+
   const session = await getStripe().checkout.sessions.create({
     mode: "subscription",
     payment_method_types: ["card"],
-    line_items: [
-      {
-        price: PRICE_MAP[tier],
-        quantity: 1,
-      },
-    ],
+    line_items: [{ price: PRICE_MAP[tier], quantity: 1 }],
     subscription_data: {
       trial_period_days: 3,
-      metadata: {
-        user_id: userData.user.id,
-        tier,
-      },
+      metadata: { user_id: userData.user.id, tier },
     },
-    metadata: {
-      user_id: userData.user.id,
-      tier,
-    },
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/pt/app/billing?success=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pt/app/billing?canceled=true`,
-    customer_email: userData.user.email!,
+    metadata: { user_id: userData.user.id, tier },
+    client_reference_id: userData.user.id,
+    success_url: `${baseUrl}/pt/app/tutorial?success=true&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${baseUrl}/pt/app/billing?canceled=true`,
+    ...(existingCustomerId ? { customer: existingCustomerId } : { customer_email: userData.user.email ?? undefined }),
   });
 
   return NextResponse.json({ url: session.url });

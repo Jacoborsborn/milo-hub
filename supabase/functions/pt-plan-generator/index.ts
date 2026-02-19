@@ -301,94 +301,162 @@ Deno.serve(async (req) => {
   try {
     console.log("[EDGE FUNCTION] Starting request handler");
 
-    // FIX #2: Better auth header extraction with detailed logging
-    const authHeader = req.headers.get("Authorization");
-    
-    console.log("[EDGE FUNCTION] Auth header check:", {
-      hasAuthHeader: !!authHeader,
-      headerValue: authHeader ? `${authHeader.substring(0, 20)}...` : "MISSING",
-      allHeaders: Object.fromEntries(req.headers.entries())
-    });
-
-    if (!authHeader) {
-      console.error("[EDGE FUNCTION] No Authorization header found!");
-      return new Response(
-        JSON.stringify({ 
-          error: "Missing authorization header",
-          debug: "The Authorization header was not present in the request"
-        }),
-        {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    // Create client with anon key + auth header to verify JWT (satisfies gateway)
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-    
     if (!supabaseUrl || !anonKey) {
-      console.error("[EDGE FUNCTION] Missing SUPABASE_URL or SUPABASE_ANON_KEY");
       return new Response(
         JSON.stringify({ error: "Server configuration error" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // FIX #3: Create client with the Authorization header to verify JWT
-    console.log("[EDGE FUNCTION] Attempting to verify JWT...");
-    const jwt = authHeader.replace('Bearer ', '');
-    
-    // Create a client that uses the JWT from the request
-    const authClient = createClient(supabaseUrl, anonKey, {
-      global: {
-        headers: {
-          Authorization: authHeader
-        }
-      },
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
-    });
-
-    const { data: { user }, error: userError } = await authClient.auth.getUser(jwt);
-    
-    if (userError || !user) {
-      console.error("[EDGE FUNCTION] JWT verification failed:", {
-        error: userError?.message,
-        errorName: userError?.name,
-        errorStatus: userError?.status,
-        hasUser: !!user
-      });
-      return new Response(
-        JSON.stringify({ 
-          error: "Unauthorized", 
-          details: userError?.message || "Invalid token",
-          debug: "JWT token verification failed. Token may be expired or invalid."
-        }),
-        {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    console.log("[EDGE FUNCTION] JWT verified successfully, user:", user.id);
-
-    // Validate input
     const body = await req.json();
     console.log("[EDGE FUNCTION] Request body:", {
       hasTemplateId: !!body.template_id,
       hasClientId: !!body.client_id,
       hasUserId: !!body.user_id,
       mode: body.mode,
-      body: body,
     });
+
+    const autogenSecret = Deno.env.get("AUTOGEN_SECRET");
+    const isAutogenWeek = Boolean(
+      autogenSecret &&
+      body.autogen_secret === autogenSecret &&
+      body.assignment_id &&
+      typeof body.week_number === "number" &&
+      body.week_number >= 1
+    );
+
+    if (isAutogenWeek) {
+      const assignmentId = body.assignment_id as string;
+      const weekNumber = body.week_number as number;
+      if (!validateUUID(assignmentId)) {
+        return new Response(
+          JSON.stringify({ error: "assignment_id must be a valid UUID" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (!serviceRoleKey) {
+        return new Response(
+          JSON.stringify({ error: "Server configuration error" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const supabase = createClient(supabaseUrl, serviceRoleKey);
+      const { data: assignment, error: assignErr } = await supabase
+        .from("program_assignments")
+        .select("id, pt_user_id, client_id, program_id, program_type, workout_template_id")
+        .eq("id", assignmentId)
+        .single();
+      if (assignErr || !assignment) {
+        return new Response(
+          JSON.stringify({ error: "Assignment not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const isWorkout = assignment.program_type === "workout";
+      const isCombined = assignment.program_type === "combined";
+      const template_id = isCombined
+        ? (assignment.workout_template_id ?? assignment.program_id)
+        : assignment.program_id;
+      if (!template_id || (!isWorkout && !isCombined)) {
+        return new Response(
+          JSON.stringify({ error: "Assignment not found or not a workout program" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const ptUserId = assignment.pt_user_id;
+      const client_id = assignment.client_id;
+      const { data: profile } = await supabase.from("profiles").select("access_mode").eq("id", ptUserId).single();
+      if (profile?.access_mode === "readonly") {
+        return new Response(
+          JSON.stringify({ code: "READ_ONLY_MODE", message: "Subscription invalid" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const { data: template, error: templateError } = await supabase
+        .from("pt_templates")
+        .select("id, blueprint_json, equipment_type, experience_level")
+        .eq("id", template_id)
+        .eq("pt_user_id", ptUserId)
+        .single();
+      if (templateError || !template) {
+        return new Response(
+          JSON.stringify({ error: "Template not found or access denied" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const { data: client, error: clientError } = await supabase
+        .from("clients")
+        .select("id, pt_id, inputs_json, presets_json")
+        .eq("id", client_id)
+        .eq("pt_id", ptUserId)
+        .single();
+      if (clientError || !client) {
+        return new Response(
+          JSON.stringify({ error: "Client not found or access denied" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const presetEquipment = (client.presets_json as { workout?: { equipmentType?: string } } | null)?.workout?.equipmentType;
+      const legacyEquipment = (client.inputs_json as { workoutInputs?: { equipment?: string } } | null)?.workoutInputs?.equipment;
+      const presetToTemplate: Record<string, EquipmentType> = { none: "minimal", basic: "home", gym: "gym" };
+      let equipmentType: EquipmentType = template.equipment_type as EquipmentType;
+      if (presetEquipment && presetToTemplate[presetEquipment]) {
+        equipmentType = presetToTemplate[presetEquipment];
+      } else if (legacyEquipment && ["gym", "home", "minimal", "mixed"].includes(legacyEquipment)) {
+        equipmentType = legacyEquipment as EquipmentType;
+      }
+      const structure = template.blueprint_json as TemplateStructure;
+      if (!structure?.weekly_split || !Array.isArray(structure.weekly_split)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid template structure" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const plan = generatePlan(structure, equipmentType);
+      const weekIndex = weekNumber - 1;
+      if (!plan.weeks || weekIndex >= plan.weeks.length) {
+        return new Response(
+          JSON.stringify({ error: "week_number out of bounds for template duration" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const weekContent = plan.weeks[weekIndex];
+      const sourceHash = JSON.stringify({
+        template_id,
+        blueprint_version: structure.version ?? 0,
+        equipmentType,
+        client_presets: (client.presets_json as Record<string, unknown>) ?? {},
+      });
+      return new Response(
+        JSON.stringify({
+          week: weekContent,
+          source_hash: sourceHash.length > 512 ? sourceHash.slice(0, 512) : sourceHash,
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Missing authorization header" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    const authClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data: { user }, error: userError } = await authClient.auth.getUser(authHeader.replace("Bearer ", ""));
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized", details: userError?.message }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     let template_id: string;
     let client_id: string;
@@ -432,8 +500,8 @@ Deno.serve(async (req) => {
       user_id = validated.user_id;
     }
 
-    // Verify JWT user matches user_id in body
-    if (user.id !== user_id) {
+    // Verify JWT user matches user_id in body (skip for autogen invocation)
+    if (!isAutogenWeek && user.id !== user_id) {
       console.error("[EDGE FUNCTION] JWT user mismatch:", {
         jwtUserId: user.id,
         bodyUserId: user_id,

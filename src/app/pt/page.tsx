@@ -3,7 +3,7 @@ export default function PtLanding() {
       <main style={{ padding: 24 }}>
         <h1>Milo Hub</h1>
         <p>Generate client-ready plans in minutes.</p>
-        <a href="/pt/auth/login">Create PT account</a>
+        <a href="/signup">Create PT account</a>
       </main>
     );
   }

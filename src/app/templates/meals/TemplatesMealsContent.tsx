@@ -8,12 +8,13 @@ import { builtInMealTemplates, getMealDefaultsForApi } from "@/lib/constants/bui
 import type { MealTemplate } from "@/types/database";
 import type { Client } from "@/types/database";
 
-export default function TemplatesMealsContent() {
+type Props = { mealRefreshKey?: number };
+
+export default function TemplatesMealsContent({ mealRefreshKey = 0 }: Props) {
   const [templates, setTemplates] = useState<MealTemplate[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
   const [createName, setCreateName] = useState("");
   const [createDefaults, setCreateDefaults] = useState({
     dietaryPreference: "balanced",
@@ -59,6 +60,10 @@ export default function TemplatesMealsContent() {
     load();
   }, []);
 
+  useEffect(() => {
+    if (mealRefreshKey > 0) load();
+  }, [mealRefreshKey]);
+
   const defaultsToFormState = (d: Record<string, unknown> | undefined) => {
     if (!d || typeof d !== "object") return defaultFormState();
     return {
@@ -94,7 +99,6 @@ export default function TemplatesMealsContent() {
           name: createName.trim() || "Meal program",
           defaults: defaultsPayload,
         });
-        setShowCreate(false);
       }
       setCreateName("");
       setCreateDefaults(defaultFormState());
@@ -110,7 +114,6 @@ export default function TemplatesMealsContent() {
     setEditingTemplate(t);
     setCreateName(t.name);
     setCreateDefaults(defaultsToFormState(t.defaults as Record<string, unknown>));
-    setShowCreate(false);
   };
 
   const handleDeleteConfirm = async () => {
@@ -220,25 +223,11 @@ export default function TemplatesMealsContent() {
     <div className="space-y-8">
       {/* Program Library */}
       <section>
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-2">
           <h2 className="text-lg font-semibold">Program Library</h2>
-          <button
-            type="button"
-            onClick={() => {
-              if (editingTemplate) {
-                setEditingTemplate(null);
-                setCreateName("");
-                setCreateDefaults(defaultFormState());
-              }
-              setShowCreate((s) => !s);
-            }}
-            className="rounded-lg bg-neutral-800 text-white px-4 py-2 text-sm font-medium"
-          >
-            {showCreate || editingTemplate ? "Cancel" : "Create meal program"}
-          </button>
         </div>
 
-        {(showCreate || editingTemplate) && (
+        {editingTemplate && (
           <form onSubmit={handleSaveCreateOrEdit} className="rounded-xl border border-neutral-200 bg-white p-4 space-y-3">
             <h3 className="font-medium">{editingTemplate ? "Edit meal program" : "New meal program"}</h3>
             <p className="text-xs text-neutral-500">
@@ -313,7 +302,6 @@ export default function TemplatesMealsContent() {
               <button
                 type="button"
                 onClick={() => {
-                  setShowCreate(false);
                   setEditingTemplate(null);
                   setCreateName("");
                   setCreateDefaults(defaultFormState());
@@ -329,7 +317,7 @@ export default function TemplatesMealsContent() {
       {loading && <p className="text-neutral-500">Loading…</p>}
       {error && <p className="text-red-600 text-sm">{error}</p>}
 
-      {!loading && !error && templates.length === 0 && !showCreate && (
+      {!loading && !error && templates.length === 0 && !editingTemplate && (
         <p className="text-neutral-500">No programs yet. Create a reusable program blueprint, then assign it to clients.</p>
       )}
 

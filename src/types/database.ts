@@ -75,6 +75,58 @@ export type PlanType = "meal" | "workout";
 
 export type PlanReviewStatus = "draft" | "ready" | "sent";
 
+export type ProgramAssignmentType = "workout" | "meal" | "combined";
+
+export interface ProgramAssignment {
+  id: string;
+  pt_user_id: string;
+  client_id: string;
+  program_type: ProgramAssignmentType;
+  program_id: string | null;
+  start_date: string;
+  auto_generate_enabled: boolean;
+  autogen_lead_days: number;
+  paused: boolean;
+  workout_template_id?: string | null;
+  meal_template_id?: string | null;
+  generate_on_dow: number;
+  active: boolean;
+  auto_meals_enabled?: boolean;
+  auto_workouts_enabled?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProgramAssignmentInsert {
+  pt_user_id: string;
+  client_id: string;
+  program_type: ProgramAssignmentType;
+  program_id?: string | null;
+  start_date: string;
+  auto_generate_enabled?: boolean;
+  autogen_lead_days?: number;
+  paused?: boolean;
+  workout_template_id?: string | null;
+  meal_template_id?: string | null;
+  generate_on_dow?: number;
+  active?: boolean;
+  auto_meals_enabled?: boolean;
+  auto_workouts_enabled?: boolean;
+}
+
+export interface ProgramAssignmentUpdate {
+  auto_generate_enabled?: boolean;
+  autogen_lead_days?: number;
+  paused?: boolean;
+  start_date?: string;
+  workout_template_id?: string | null;
+  meal_template_id?: string | null;
+  generate_on_dow?: number;
+  active?: boolean;
+  auto_meals_enabled?: boolean;
+  auto_workouts_enabled?: boolean;
+}
+
 export interface Plan {
   id: string;
   pt_user_id: string;
@@ -87,6 +139,13 @@ export interface Plan {
   sent_at: string | null;
   last_sent_to: string | null;
   last_sent_subject: string | null;
+  assignment_id?: string | null;
+  week_number?: number | null;
+  status?: "draft" | "sent";
+  generated_by?: "manual" | "auto";
+  edited_at?: string | null;
+  source_hash?: string | null;
+  needs_regen?: boolean;
 }
 
 export interface PlanInsert {
@@ -161,6 +220,10 @@ export interface Profile {
   subscription_tier?: string | null;
   trial_ends_at?: string | null;
   stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
+  cancel_at_period_end?: boolean | null;
+  cancel_effective_at?: string | null;
+  current_period_end?: string | null;
 }
 
 /** Per-client row in dashboard summary */

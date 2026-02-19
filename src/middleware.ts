@@ -46,12 +46,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // If already authed, keep them out of login
-  if (path === "/pt/auth/login" && isAuthed) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/pt/app";
-    return NextResponse.redirect(url);
-  }
+  // Let /pt/auth/login through; the page does profile-based redirect (tutorial vs billing)
 
   return response;
 }

@@ -131,7 +131,10 @@ export async function updatePlanContent(
 
   const { data, error } = await supabase
     .from("plans")
-    .update({ content_json: contentJson })
+    .update({
+      content_json: contentJson,
+      edited_at: new Date().toISOString(),
+    })
     .eq("id", planId)
     .eq("pt_user_id", ptUserId)
     .select()
@@ -262,6 +265,7 @@ export async function markPlanSent(planId: string): Promise<void> {
     .update({
       review_status: "sent",
       sent_at: new Date().toISOString(),
+      status: "sent",
     })
     .eq("id", planId)
     .eq("pt_user_id", ptUserId);
@@ -272,5 +276,60 @@ export async function markPlanSent(planId: string): Promise<void> {
   }
 
   revalidatePath("/pt/app/review-plans");
+}
+
+/**
+ * List auto-generated draft plans (for Dashboard "Drafts Ready" widget).
+ * Plans where status = 'draft' and generated_by = 'auto'.
+ */
+export async function listAutoDraftPlansForDashboard(): Promise<
+  Array<{ id: string; client_id: string; clientName: string; planName: string }>
+> {
+  const ptUserId = await getCurrentUserId();
+  const supabase = await supabaseServer();
+
+  const { data: plans, error } = await supabase
+    .from("plans")
+    .select("id, client_id, plan_type, created_at, week_number")
+    .eq("pt_user_id", ptUserId)
+    .eq("status", "draft")
+    .eq("generated_by", "auto")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[listAutoDraftPlansForDashboard] Error:", error);
+    return [];
+  }
+
+  const planList = (plans ?? []) as Array<{
+    id: string;
+    client_id: string;
+    plan_type: string;
+    created_at: string;
+    week_number?: number | null;
+  }>;
+  if (planList.length === 0) return [];
+
+  const clientIds = [...new Set(planList.map((p) => p.client_id))];
+  const { data: clients } = await supabase
+    .from("clients")
+    .select("id, name")
+    .eq("pt_id", ptUserId)
+    .in("id", clientIds);
+  const clientMap = new Map<string, string>();
+  for (const c of clients ?? []) {
+    clientMap.set((c as { id: string; name: string }).id, (c as { id: string; name: string }).name ?? "Client");
+  }
+
+  return planList.map((p) => {
+    const weekLabel = p.week_number != null ? ` Week ${p.week_number}` : "";
+    const typeLabel = p.plan_type === "workout" ? "Workout" : "Meal";
+    return {
+      id: p.id,
+      client_id: p.client_id,
+      clientName: clientMap.get(p.client_id) ?? "Client",
+      planName: `${typeLabel}${weekLabel}`,
+    };
+  });
 }
 

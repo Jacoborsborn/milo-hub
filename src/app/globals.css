@@ -3,12 +3,28 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Review Plans / Command Review Board */
+  --rp-bg: #0B0F14;
+  --rp-surface: #FFFFFF;
+  --rp-surface-2: #F6F7F9;
+  --rp-text: #0E1116;
+  --rp-muted: #6B7280;
+  --rp-border: #E5E7EB;
+  --rp-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  --rp-shadow-sm: 0 6px 14px rgba(0,0,0,0.06);
+  --rp-accent-ready: #4F46E5;
+  --rp-accent-flagged: #F59E0B;
+  --rp-accent-sent: #10B981;
+  --rp-accent-workout: #2563EB;
+  --rp-accent-meal: #F97316;
+  --rp-r-lg: 16px;
+  --rp-r-md: 12px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: ui-monospace, monospace;
 }
 
@@ -22,7 +38,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), ui-sans-serif, sans-serif;
+  font-family: 'Inter', var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Print styles for plan export */
@@ -82,4 +98,11 @@ body {
   [data-density] {
     overflow-x: hidden;
   }
+}
+
+/* Review Plans: queue row hover */
+.queue-item-row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+  border-color: #D1D5DB !important;
 }

@@ -2,6 +2,7 @@ import { getClientById, deleteClient } from "../../../../../lib/services/clients
 import { listPlansForClient } from "../../../../../lib/services/plans";
 import { listPtTemplates } from "../../../../../lib/services/ptTemplatesServer";
 import { listMealTemplates } from "../../../../../lib/services/meal-templates";
+import { listProgramAssignmentsByClient } from "../../../../../lib/services/program-assignments";
 import { generateMealPlanFormAction } from "../../../../templates/meals/actions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -39,17 +40,20 @@ export default async function ClientDetailPage({
   let recentPlans: Awaited<ReturnType<typeof listPlansForClient>> = [];
   let workoutPrograms: Awaited<ReturnType<typeof listPtTemplates>> = [];
   let mealPrograms: Awaited<ReturnType<typeof listMealTemplates>> = [];
+  let assignments: Awaited<ReturnType<typeof listProgramAssignmentsByClient>> = [];
   try {
-    const [clientRes, plansRes, workoutRes, mealRes] = await Promise.all([
+    const [clientRes, plansRes, workoutRes, mealRes, assignmentsRes] = await Promise.all([
       getClientById(id),
       listPlansForClient(id),
       listPtTemplates(),
       listMealTemplates(),
+      listProgramAssignmentsByClient(id),
     ]);
     client = clientRes;
     recentPlans = plansRes ?? [];
     workoutPrograms = workoutRes ?? [];
     mealPrograms = mealRes ?? [];
+    assignments = assignmentsRes ?? [];
   } catch (err) {
     if ((err as any)?.digest?.startsWith("NEXT_REDIRECT")) throw err;
     return (
@@ -124,6 +128,7 @@ export default async function ClientDetailPage({
           assignedMealProgramId={(client as { assigned_meal_program_id?: string | null }).assigned_meal_program_id ?? null}
           workoutPrograms={workoutPrograms}
           mealPrograms={mealPrograms}
+          assignments={assignments}
         />
       </section>
 

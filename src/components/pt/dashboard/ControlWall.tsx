@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { getPtDashboardSummary } from "@/lib/services/dashboard";
 import type { PtDashboardSummary, DashboardClient } from "@/lib/services/dashboard";
 import MetricCard from "@/components/ui/MetricCard";
@@ -10,6 +11,16 @@ import ActivityFeed from "@/components/ui/ActivityFeed";
 import QuickActions from "@/components/ui/QuickActions";
 import EmptyState from "@/components/ui/EmptyState";
 import PrimaryButton from "@/components/ui/PrimaryButton";
+
+type PtNotification = {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  link_path: string | null;
+  is_read: boolean;
+  created_at: string;
+};
 import {
   demoDashboardStats,
   demoClientCards,
@@ -143,6 +154,14 @@ export default function ControlWall() {
   const [summary, setSummary] = useState<PtDashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [unreadNotifications, setUnreadNotifications] = useState<PtNotification[]>([]);
+
+  useEffect(() => {
+    fetch("/api/notifications?unread_only=true&limit=10")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setUnreadNotifications(Array.isArray(data) ? data : []))
+      .catch(() => setUnreadNotifications([]));
+  }, []);
 
   useEffect(() => {
     if (DEMO_DASHBOARD) return;
@@ -259,6 +278,62 @@ export default function ControlWall() {
             <PriorityCardsGrid items={realPriorityItems} loading={loading} />
           </div>
           <div className="space-y-6">
+            {unreadNotifications.length > 0 && (
+              <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-neutral-800 uppercase tracking-wide mb-2">
+                  Notifications
+                </h3>
+                <p className="text-xs text-neutral-500 mb-3">
+                  Unread — open to go to the plan.
+                </p>
+                <ul className="space-y-2">
+                  {unreadNotifications.map((n) => (
+                    <li key={n.id}>
+                      {n.link_path ? (
+                        <Link
+                          href={n.link_path}
+                          className="text-sm font-medium text-neutral-900 hover:underline"
+                        >
+                          {n.message}
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-neutral-700">{n.message}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {(summary?.autoDrafts?.length ?? 0) > 0 && (
+              <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-neutral-800 uppercase tracking-wide mb-2">
+                  Drafts Ready
+                </h3>
+                <p className="text-xs text-neutral-500 mb-3">
+                  Auto-generated drafts — review before sending.
+                </p>
+                <ul className="space-y-2">
+                  {(summary?.autoDrafts ?? []).slice(0, 5).map((d) => (
+                    <li key={d.id}>
+                      <Link
+                        href={`/pt/app/plans/${d.id}`}
+                        className="text-sm font-medium text-neutral-900 hover:underline"
+                      >
+                        {d.planName} · {d.clientName}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                {(summary?.autoDrafts?.length ?? 0) > 5 && (
+                  <Link
+                    href="/pt/app/review-plans"
+                    className="mt-2 inline-block text-xs font-medium text-neutral-600 hover:text-neutral-900"
+                  >
+                    View all ({summary?.autoDrafts?.length ?? 0})
+                  </Link>
+                )}
+              </div>
+            )}
             <TodaysFocusCard
               overdueCount={summary?.overdueCount ?? 0}
               dueSoonCount={summary?.dueSoonCount ?? 0}

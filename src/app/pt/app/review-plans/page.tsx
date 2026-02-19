@@ -1,5 +1,5 @@
 // src/app/pt/app/review-plans/page.tsx
-// Review Plans: real data from public.plans (review_status ready/sent), client names from clients.
+// Review Plans: Command Review Board — premium inbox with color-coded states.
 
 "use client";
 
@@ -12,8 +12,8 @@ type ReviewItem = {
   clientName: string;
   planName: string;
   planType: "workout" | "meal";
-  createdAt: string; // ISO
-  generatedAt?: string; // ISO
+  createdAt: string;
+  generatedAt?: string;
   status: "ready" | "sent" | "archived";
   flags: {
     needsCheckCalories?: boolean;
@@ -22,6 +22,8 @@ type ReviewItem = {
     needsCheckVolume?: boolean;
   };
 };
+
+type QueueFilter = "all" | "ready" | "sent";
 
 function formatDate(value: string) {
   const d = new Date(value);
@@ -35,22 +37,6 @@ function formatDate(value: string) {
   });
 }
 
-function pillClass(kind: "workout" | "meal") {
-  const base =
-    "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium";
-  return kind === "workout"
-    ? `${base} border-sky-300/40 bg-sky-500/10`
-    : `${base} border-emerald-300/40 bg-emerald-500/10`;
-}
-
-function statusPill(status: ReviewItem["status"]) {
-  const base =
-    "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium";
-  if (status === "ready") return `${base} border-amber-300/40 bg-amber-500/10`;
-  if (status === "sent") return `${base} border-emerald-300/40 bg-emerald-500/10`;
-  return `${base} border-border bg-muted/30`;
-}
-
 function countFlags(item: ReviewItem) {
   const f = item.flags;
   return (
@@ -61,7 +47,9 @@ function countFlags(item: ReviewItem) {
   );
 }
 
-function mapRowToReviewItem(row: Awaited<ReturnType<typeof listPlansForReview>>[number]): ReviewItem {
+function mapRowToReviewItem(
+  row: Awaited<ReturnType<typeof listPlansForReview>>[number]
+): ReviewItem {
   return {
     id: row.id,
     clientName: row.clientName,
@@ -74,19 +62,564 @@ function mapRowToReviewItem(row: Awaited<ReturnType<typeof listPlansForReview>>[
   };
 }
 
+// ——— Momentum Strip ———
+function MomentumStrip({
+  readyCount,
+  flaggedCount,
+  sentCount,
+}: {
+  readyCount: number;
+  flaggedCount: number;
+  sentCount: number;
+}) {
+  return (
+    <section
+      className="flex flex-col gap-0 sm:flex-row"
+      style={{
+        background: "#fff",
+        border: "1px solid #E5E7EB",
+        borderRadius: "16px",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.04)",
+        padding: "18px",
+      }}
+    >
+      {/* READY — ~50% */}
+      <div className="relative flex min-h-[100px] flex-1 flex-col justify-center border-b border-[#E5E7EB] bg-white pl-[22px] sm:max-w-[50%] sm:border-b-0 sm:border-r sm:pr-5">
+        <div
+          className="absolute left-0 top-4 bottom-4 w-1.5 rounded-full"
+          style={{ background: "#6366F1" }}
+        />
+        <p className="text-xs font-medium" style={{ color: "var(--rp-muted)" }}>
+          Ready to review
+        </p>
+        <p
+          className="mt-1 text-[48px] font-extrabold leading-none tracking-tight"
+          style={{ color: "var(--rp-text)" }}
+        >
+          {readyCount}
+        </p>
+        <p className="mt-1 text-[13px]" style={{ color: "var(--rp-muted)" }}>
+          Awaiting approval
+        </p>
+      </div>
+
+      {/* FLAGGED — ~25% */}
+      <div className="relative flex min-h-[88px] flex-[0.5] flex-col justify-center border-b border-[#E5E7EB] bg-white pl-[22px] sm:border-b-0 sm:border-r sm:pr-4">
+        <div
+          className="absolute left-0 top-3 bottom-3 w-1.5 rounded-full"
+          style={{ background: "#F59E0B" }}
+        />
+        <p className="text-xs font-medium" style={{ color: "var(--rp-muted)" }}>
+          Flagged
+        </p>
+        <p
+          className="mt-0.5 text-[32px] font-extrabold leading-none"
+          style={{ color: "var(--rp-text)" }}
+        >
+          {flaggedCount}
+        </p>
+        <p className="mt-0.5 text-[13px]" style={{ color: "var(--rp-muted)" }}>
+          Needs a quick check
+        </p>
+      </div>
+
+      {/* SENT — ~25% */}
+      <div className="relative flex min-h-[88px] flex-[0.5] flex-col justify-center bg-white pl-[22px] sm:pl-4">
+        <div
+          className="absolute left-0 top-3 bottom-3 w-1.5 rounded-full"
+          style={{ background: "#10B981" }}
+        />
+        <p className="text-xs font-medium" style={{ color: "var(--rp-muted)" }}>
+          Sent
+        </p>
+        <p
+          className="mt-0.5 text-[32px] font-extrabold leading-none"
+          style={{ color: "var(--rp-text)" }}
+        >
+          {sentCount}
+        </p>
+        <p className="mt-0.5 text-[13px]" style={{ color: "var(--rp-muted)" }}>
+          Delivered recently
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ——— Segmented Filter ———
+function SegmentedFilter({
+  value,
+  onChange,
+}: {
+  value: QueueFilter;
+  onChange: (v: QueueFilter) => void;
+}) {
+  const options: { value: QueueFilter; label: string }[] = [
+    { value: "all", label: "All" },
+    { value: "ready", label: "Ready" },
+    { value: "sent", label: "Sent" },
+  ];
+  return (
+    <div
+      className="inline-flex rounded-full p-1"
+      style={{
+        background: "var(--rp-surface-2)",
+        minHeight: 42,
+      }}
+    >
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          className="min-h-[34px] rounded-full px-3 py-2 text-[13px] font-medium transition-colors"
+          style={
+            value === opt.value
+              ? {
+                  background: "var(--rp-surface)",
+                  border: "1px solid var(--rp-border)",
+                  boxShadow: "var(--rp-shadow-sm)",
+                  color: "var(--rp-text)",
+                }
+              : { color: "var(--rp-muted)" }
+          }
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ——— Queue Item Row (compact: chips + title + metadata + one primary button) ———
+function QueueItemRow({
+  item,
+  sendingId,
+  onOpenReview,
+}: {
+  item: ReviewItem;
+  sendingId: string | null;
+  onOpenReview: (item: ReviewItem) => void;
+}) {
+  const flagsCount = countFlags(item);
+  const isSent = item.status === "sent";
+  const isReady = item.status === "ready";
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      className="queue-item-row flex min-h-[96px] cursor-pointer flex-row items-center justify-between gap-4 rounded-[var(--rp-r-md)] border p-4 transition-all"
+      style={{
+        background: "var(--rp-surface)",
+        borderColor: "var(--rp-border)",
+        borderLeftWidth: "3px",
+        borderLeftColor: "#94A3B8",
+      }}
+      onClick={() => onOpenReview(item)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpenReview(item);
+        }
+      }}
+    >
+      <div
+        className="min-w-0 flex-1"
+        style={isSent ? { opacity: 0.92 } : undefined}
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className="rounded-lg px-2 py-1 text-[12px] font-semibold"
+            style={{ background: "#F3F4F6", color: "#374151" }}
+          >
+            {item.planType === "workout" ? "Workout" : "Meal"}
+          </span>
+          <span
+            className="rounded-lg px-2 py-1 text-[12px] font-semibold"
+            style={
+              isReady
+                ? { background: "rgba(79,70,229,0.08)", color: "#4F46E5" }
+                : { background: "rgba(16,185,129,0.08)", color: "#10B981" }
+            }
+          >
+            {isReady ? "Ready" : "Sent"}
+          </span>
+          {flagsCount > 0 && isReady && (
+            <span
+              className="rounded-lg px-2 py-1 text-[12px] font-semibold"
+              style={{
+                background: "rgba(245,158,11,0.10)",
+                color: "#F59E0B",
+              }}
+            >
+              {flagsCount} check{flagsCount === 1 ? "" : "s"}
+            </span>
+          )}
+        </div>
+        <h3
+          className="mt-1.5 truncate font-bold"
+          style={{ fontSize: "17px", color: "var(--rp-text)" }}
+        >
+          {item.planName}
+        </h3>
+        <p
+          className="mt-0.5 text-[13px]"
+          style={{ color: "#6B7280", opacity: 0.95 }}
+        >
+          {item.clientName} · Created {formatDate(item.createdAt)}
+          {item.generatedAt ? ` · Generated ${formatDate(item.generatedAt)}` : ""}
+        </p>
+      </div>
+
+      <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+        {isReady ? (
+          <button
+            type="button"
+            className="h-10 min-h-[40px] rounded-[12px] border-0 px-4 font-medium text-white transition-[filter] hover:brightness-95 disabled:opacity-60"
+            style={{ background: "#111827" }}
+            onClick={() => onOpenReview(item)}
+            disabled={sendingId === item.id}
+          >
+            {sendingId === item.id ? "Sending…" : "Review & Send"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="h-10 min-h-[40px] rounded-[12px] border px-4 font-medium transition-colors hover:bg-[#F6F7F9]"
+            style={{
+              background: "#FFFFFF",
+              borderColor: "#E5E7EB",
+              color: "#0E1116",
+            }}
+            onClick={() => onOpenReview(item)}
+          >
+            Open & Review
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ChecklistItem({
+  label,
+  hint,
+  checked,
+  onToggle,
+}: {
+  label: string;
+  hint: string;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <label
+      className="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors hover:bg-[var(--rp-surface-2)]"
+      style={{
+        background: "var(--rp-surface)",
+        borderColor: "var(--rp-border)",
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onToggle}
+        className="mt-0.5 h-5 w-5 shrink-0 rounded border-gray-300 text-[var(--rp-accent-ready)] focus:ring-[var(--rp-accent-ready)]"
+        style={{ borderColor: "var(--rp-border)" }}
+        aria-label={label}
+      />
+      <div className="min-w-0">
+        <p className="text-sm font-medium" style={{ color: "var(--rp-text)" }}>
+          {label}
+        </p>
+        <p className="text-xs" style={{ color: "var(--rp-muted)" }}>
+          {hint}
+        </p>
+      </div>
+    </label>
+  );
+}
+
+const CHECKLIST_ITEMS: { label: string; hint: string }[] = [
+  { label: "Structure makes sense", hint: "Split, days, and flow" },
+  { label: "Constraints respected", hint: "Equipment / allergies / restrictions" },
+  { label: "Progression looks sane", hint: "Volume, intensity, overload" },
+  { label: "Client-ready language", hint: "Clear, not robotic" },
+];
+
+// ——— Review Panel (slide-over: checklist + actions) ———
+function ReviewPanel({
+  item,
+  onClose,
+  onReviewAndSend,
+  onArchive,
+  onResend,
+  sendingId,
+}: {
+  item: ReviewItem;
+  onClose: () => void;
+  onReviewAndSend: (planId: string) => void;
+  onArchive: () => void;
+  onResend: () => void;
+  sendingId: string | null;
+}) {
+  const [checklist, setChecklist] = useState<boolean[]>(() => CHECKLIST_ITEMS.map(() => false));
+  const isReady = item.status === "ready";
+  const flagsCount = countFlags(item);
+
+  const toggleCheck = (index: number) => {
+    setChecklist((prev) => prev.map((v, i) => (i === index ? !v : v)));
+  };
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-40 bg-black/20"
+        aria-hidden
+        onClick={onClose}
+      />
+      <div
+        className="fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col border-l bg-white shadow-xl"
+        style={{
+          borderColor: "var(--rp-border)",
+          boxShadow: "0 6px 16px rgba(0,0,0,0.05)",
+        }}
+      >
+        <div className="flex items-center justify-between border-b p-5" style={{ borderColor: "var(--rp-border)" }}>
+          <h2 className="font-bold" style={{ fontSize: "18px", color: "var(--rp-text)" }}>
+            {item.planName}
+          </h2>
+          <button
+            type="button"
+            className="rounded-lg p-2 text-[var(--rp-muted)] transition-colors hover:bg-[var(--rp-surface-2)] hover:text-[var(--rp-text)]"
+            onClick={onClose}
+            aria-label="Close panel"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-5">
+          <p className="text-[13px]" style={{ color: "var(--rp-muted)" }}>
+            {item.clientName} · Created {formatDate(item.createdAt)}
+            {item.generatedAt ? ` · Generated ${formatDate(item.generatedAt)}` : ""}
+          </p>
+
+          <div className="mt-4">
+            <p className="mb-2 text-sm font-semibold" style={{ color: "var(--rp-text)" }}>
+              Full content
+            </p>
+            <Link
+              href={`/pt/app/plans/${item.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sm font-medium"
+              style={{ color: "var(--rp-accent-ready)" }}
+            >
+              Open plan in new tab
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" /></svg>
+            </Link>
+          </div>
+
+          <div className="mt-6">
+            <p className="mb-3 text-sm font-semibold" style={{ color: "var(--rp-text)" }}>
+              Review checklist
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {CHECKLIST_ITEMS.map((entry, index) => (
+                <ChecklistItem
+                  key={entry.label}
+                  label={entry.label}
+                  hint={entry.hint}
+                  checked={checklist[index] ?? false}
+                  onToggle={() => toggleCheck(index)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {isReady && flagsCount > 0 && (
+            <div
+              className="mt-4 rounded-xl border p-4 text-sm"
+              style={{
+                background: "var(--rp-surface-2)",
+                borderColor: "var(--rp-border)",
+              }}
+            >
+              <p className="font-semibold" style={{ color: "var(--rp-text)" }}>
+                Quick checks needed
+              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-5" style={{ color: "var(--rp-muted)" }}>
+                {item.flags.needsCheckCalories && <li>Calories/macros sanity check</li>}
+                {item.flags.needsCheckAllergies && <li>Allergy/restriction compliance</li>}
+                {item.flags.needsCheckEquipment && <li>Equipment matches client setup</li>}
+                {item.flags.needsCheckVolume && <li>Weekly volume/progression is sensible</li>}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-3 border-t p-5" style={{ borderColor: "var(--rp-border)" }}>
+          {isReady ? (
+            <>
+              <button
+                type="button"
+                className="h-10 w-full rounded-[12px] border-0 font-medium text-white transition-[filter] hover:brightness-95 disabled:opacity-60"
+                style={{ background: "#111827" }}
+                onClick={() => onReviewAndSend(item.id)}
+                disabled={sendingId === item.id}
+              >
+                {sendingId === item.id ? "Sending…" : "Review & Send"}
+              </button>
+              <button
+                type="button"
+                className="h-10 w-full rounded-[12px] border px-4 font-medium transition-colors hover:bg-[#F6F7F9]"
+                style={{ borderColor: "#E5E7EB", color: "#0E1116" }}
+                onClick={onArchive}
+              >
+                Archive
+              </button>
+              <button
+                type="button"
+                className="text-sm font-medium transition-colors hover:underline"
+                style={{ color: "var(--rp-muted)" }}
+                onClick={onResend}
+              >
+                Resend
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href={`/pt/app/plans/${item.id}`}
+                className="flex h-10 w-full items-center justify-center rounded-[12px] border font-medium transition-colors hover:bg-[#F6F7F9]"
+                style={{ borderColor: "#E5E7EB", color: "#0E1116" }}
+              >
+                Open & Review
+              </Link>
+              <button
+                type="button"
+                className="h-10 w-full rounded-[12px] border px-4 font-medium transition-colors hover:bg-[#F6F7F9]"
+                style={{ borderColor: "#E5E7EB", color: "#0E1116" }}
+                onClick={onArchive}
+              >
+                Archive
+              </button>
+              <button
+                type="button"
+                className="text-sm font-medium transition-colors hover:underline"
+                style={{ color: "var(--rp-muted)" }}
+                onClick={onResend}
+              >
+                Resend
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ——— Review Queue Card ———
+function ReviewQueueCard({
+  filteredQueue,
+  filter,
+  setFilter,
+  loading,
+  sendingId,
+  onOpenReview,
+}: {
+  filteredQueue: ReviewItem[];
+  filter: QueueFilter;
+  setFilter: (f: QueueFilter) => void;
+  loading: boolean;
+  sendingId: string | null;
+  onOpenReview: (item: ReviewItem) => void;
+}) {
+  return (
+    <section
+      className="overflow-visible rounded-[var(--rp-r-lg)] border"
+      style={{
+        background: "var(--rp-surface)",
+        borderColor: "var(--rp-border)",
+        boxShadow: "0 6px 16px rgba(0,0,0,0.05)",
+      }}
+    >
+      <div className="flex flex-col gap-3 border-b p-5 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2
+            className="font-semibold"
+            style={{ fontSize: "17px", color: "var(--rp-text)" }}
+          >
+            Review Queue
+          </h2>
+          <p className="mt-1 text-[13px]" style={{ color: "var(--rp-muted)" }}>
+            Quick scan. One click. Delivered.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <span
+            className="text-[13px]"
+            style={{ color: "var(--rp-muted)" }}
+          >
+            Avg review time: 42s
+          </span>
+          <SegmentedFilter value={filter} onChange={setFilter} />
+        </div>
+      </div>
+
+      <div className="p-5" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        {loading ? (
+          <div
+            className="py-8 text-center text-sm"
+            style={{ color: "var(--rp-muted)" }}
+          >
+            Loading…
+          </div>
+        ) : filteredQueue.length === 0 ? (
+          <div
+            className="py-8 text-center text-sm"
+            style={{ color: "var(--rp-muted)" }}
+          >
+            No plans to show.
+          </div>
+        ) : (
+          filteredQueue.map((item) => (
+            <QueueItemRow
+              key={item.id}
+              item={item}
+              sendingId={sendingId}
+              onOpenReview={onOpenReview}
+            />
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ——— Page ———
 export default function ReviewPlansPage() {
   const [queue, setQueue] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<QueueFilter>("all");
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   const loadQueue = () => {
     setLoading(true);
     setError(null);
     listPlansForReview()
       .then((rows) => setQueue(rows.map(mapRowToReviewItem)))
-      .catch((e) => setError(e instanceof Error ? e.message : "Failed to load plans"))
+      .catch((e) =>
+        setError(e instanceof Error ? e.message : "Failed to load plans")
+      )
       .finally(() => setLoading(false));
   };
 
@@ -116,6 +649,7 @@ export default function ReviewPlansPage() {
         return;
       }
       setToast("Plan sent to client");
+      setSelectedPlanId(null);
       await loadQueue();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to send plan");
@@ -128,27 +662,49 @@ export default function ReviewPlansPage() {
   const sent = queue.filter((p) => p.status === "sent");
   const flagged = ready.filter((p) => countFlags(p) > 0);
 
+  const filteredQueue =
+    filter === "all"
+      ? queue
+      : filter === "ready"
+        ? ready
+        : sent;
+
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-10">
       <header className="mb-8">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Review Plans</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Your “inbox” for completed generations. Review fast, send faster.
+            <h1
+              className="font-bold tracking-tight"
+              style={{ fontSize: "30px", color: "var(--rp-text)" }}
+            >
+              Review Plans
+            </h1>
+            <p
+              className="mt-2 text-sm"
+              style={{ color: "var(--rp-muted)" }}
+            >
+              Approve. Deliver. Move on.
             </p>
           </div>
-
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Link
               href="/pt/app/clients"
-              className="inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
+              className="inline-flex h-10 items-center justify-center rounded-[12px] border px-4 text-sm font-medium transition-colors hover:bg-[var(--rp-surface-2)]"
+              style={{
+                borderColor: "var(--rp-border)",
+                color: "var(--rp-text)",
+              }}
             >
               Go to Clients
             </Link>
             <Link
               href="/pt/app/programs"
-              className="inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
+              className="inline-flex h-10 items-center justify-center rounded-[12px] border px-4 text-sm font-medium transition-colors hover:bg-[var(--rp-surface-2)]"
+              style={{
+                borderColor: "var(--rp-border)",
+                color: "var(--rp-text)",
+              }}
             >
               Go to Programs
             </Link>
@@ -167,221 +723,37 @@ export default function ReviewPlansPage() {
         </div>
       )}
 
-      {/* Productivity strip */}
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border bg-card p-5">
-          <p className="text-xs text-muted-foreground">Ready to review</p>
-          <p className="mt-2 text-3xl font-semibold">{ready.length}</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Clear these to keep momentum.
-          </p>
-        </div>
+      <MomentumStrip
+        readyCount={ready.length}
+        flaggedCount={flagged.length}
+        sentCount={sent.length}
+      />
 
-        <div className="rounded-2xl border bg-card p-5">
-          <p className="text-xs text-muted-foreground">Flagged items</p>
-          <p className="mt-2 text-3xl font-semibold">{flagged.length}</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            These need a quick check before sending.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border bg-card p-5">
-          <p className="text-xs text-muted-foreground">Sent recently</p>
-          <p className="mt-2 text-3xl font-semibold">{sent.length}</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Proof you’re moving. Keep it going.
-          </p>
-        </div>
-      </section>
-
-      {/* Queue */}
-      <section className="mt-8 rounded-2xl border bg-card">
-        <div className="flex flex-col gap-2 border-b p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-base font-semibold">Review Queue</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Do a 30-second scan → send → done.
-            </p>
-          </div>
-
-          {/* This will later become filters */}
-          <div className="flex gap-2">
-            <span className="inline-flex items-center rounded-full border px-3 py-1 text-xs">
-              All
-            </span>
-            <span className="inline-flex items-center rounded-full border bg-muted/30 px-3 py-1 text-xs">
-              Ready
-            </span>
-            <span className="inline-flex items-center rounded-full border bg-muted/30 px-3 py-1 text-xs">
-              Sent
-            </span>
-          </div>
-        </div>
-
-        <div className="divide-y">
-          {loading ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">
-              Loading…
-            </div>
-          ) : (
-            queue.map((item) => {
-            const flagsCount = countFlags(item);
-            return (
-              <div key={item.id} className="p-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className={pillClass(item.planType)}>
-                        {item.planType === "workout" ? "Workout" : "Meal"}
-                      </span>
-                      <span className={statusPill(item.status)}>
-                        {item.status === "ready"
-                          ? "Ready"
-                          : item.status === "sent"
-                          ? "Sent"
-                          : "Archived"}
-                      </span>
-                      {flagsCount > 0 && item.status === "ready" && (
-                        <span className="inline-flex items-center rounded-full border border-amber-300/40 bg-amber-500/10 px-2.5 py-1 text-xs font-medium">
-                          {flagsCount} check{flagsCount === 1 ? "" : "s"}
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="mt-2 truncate text-base font-semibold">
-                      {item.planName}
-                    </h3>
-
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      <span className="font-medium text-foreground">
-                        {item.clientName}
-                      </span>{" "}
-                      · Created {formatDate(item.createdAt)}
-                      {item.generatedAt ? ` · Generated ${formatDate(item.generatedAt)}` : ""}
-                    </p>
-
-                    {/* Review checklist (psychological “done”) */}
-                    {item.status === "ready" && (
-                      <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                        <ChecklistItem
-                          label="Structure makes sense"
-                          hint="Split, days, and flow"
-                        />
-                        <ChecklistItem
-                          label="Constraints respected"
-                          hint="Equipment / allergies / restrictions"
-                        />
-                        <ChecklistItem
-                          label="Progression looks sane"
-                          hint="Volume, intensity, overload"
-                        />
-                        <ChecklistItem
-                          label="Client-ready language"
-                          hint="Clear, not robotic"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Quick actions */}
-                  <div className="flex shrink-0 flex-col gap-2 sm:w-[220px]">
-                    <Link
-                      href={`/pt/app/plans/${item.id}`}
-                      className="inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
-                    >
-                      Open & Review
-                    </Link>
-
-                    {item.status === "ready" ? (
-                      <>
-                        <button
-                          type="button"
-                          className="inline-flex items-center justify-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background hover:opacity-90 disabled:opacity-60"
-                          onClick={() => handleReviewAndSend(item.id)}
-                          disabled={sendingId === item.id}
-                        >
-                          {sendingId === item.id ? "Sending…" : "✓ Review & Send"}
-                        </button>
-
-                        <button
-                          type="button"
-                          className="inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
-                          onClick={() => {
-                            alert("TODO: Archive flow");
-                          }}
-                        >
-                          Archive
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        className="inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
-                        onClick={() => alert("TODO: View send history / resend")}
-                      >
-                        Resend
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Flag summary */}
-                {item.status === "ready" && countFlags(item) > 0 && (
-                  <div className="mt-4 rounded-xl border bg-muted/20 p-4 text-sm">
-                    <p className="font-medium">Quick checks needed</p>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
-                      {item.flags.needsCheckCalories && (
-                        <li>Calories/macros sanity check</li>
-                      )}
-                      {item.flags.needsCheckAllergies && (
-                        <li>Allergy/restriction compliance</li>
-                      )}
-                      {item.flags.needsCheckEquipment && (
-                        <li>Equipment matches client setup</li>
-                      )}
-                      {item.flags.needsCheckVolume && (
-                        <li>Weekly volume/progression is sensible</li>
-                      )}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            );
-          })
-          )}
-        </div>
-      </section>
-
-      {/* Bottom guidance */}
-      <section className="mt-8 rounded-2xl border bg-card p-6">
-        <h2 className="text-base font-semibold">How this page should work (v1)</h2>
-        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
-          <li>
-            Generations run in the background (basket icon). When complete, they appear here as <span className="font-medium text-foreground">Ready</span>.
-          </li>
-          <li>
-            You open a plan, scan it quickly, make edits if needed.
-          </li>
-          <li>
-            Hit <span className="font-medium text-foreground">✓ Review & Send</span> to deliver to the client and mark it as sent.
-          </li>
-        </ol>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Next: replace mock data with a real query and wire “Review & Send” to your email/share flow.
-        </p>
-      </section>
-    </main>
-  );
-}
-
-function ChecklistItem({ label, hint }: { label: string; hint: string }) {
-  return (
-    <div className="flex items-start gap-3 rounded-xl border bg-card p-3">
-      <div className="mt-0.5 h-5 w-5 rounded-md border bg-muted/30" aria-hidden />
-      <div className="min-w-0">
-        <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-muted-foreground">{hint}</p>
+      <div className="mt-8">
+        <ReviewQueueCard
+          filteredQueue={filteredQueue}
+          filter={filter}
+          setFilter={setFilter}
+          loading={loading}
+          sendingId={sendingId}
+          onOpenReview={(item) => setSelectedPlanId(item.id)}
+        />
       </div>
-    </div>
+
+      {selectedPlanId && (() => {
+        const selectedItem = queue.find((p) => p.id === selectedPlanId);
+        if (!selectedItem) return null;
+        return (
+          <ReviewPanel
+            item={selectedItem}
+            onClose={() => setSelectedPlanId(null)}
+            onReviewAndSend={handleReviewAndSend}
+            onArchive={() => alert("TODO: Archive flow")}
+            onResend={() => alert("TODO: View send history / resend")}
+            sendingId={sendingId}
+          />
+        );
+      })()}
+    </main>
   );
 }

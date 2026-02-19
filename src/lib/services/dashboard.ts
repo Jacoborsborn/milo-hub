@@ -1,7 +1,7 @@
 "use server";
 
 import { listClients } from "./clients";
-import { listPlansForPtUser } from "./plans";
+import { listPlansForPtUser, listAutoDraftPlansForDashboard } from "./plans";
 import type { Client } from "@/types/database";
 import type { Plan } from "@/types/database";
 
@@ -24,6 +24,13 @@ export type RecentActivityItem = {
   createdAt: string;
 };
 
+export type AutoDraftItem = {
+  id: string;
+  client_id: string;
+  clientName: string;
+  planName: string;
+};
+
 export type PtDashboardSummary = {
   activeClients: number;
   plansThisWeek: number;
@@ -34,6 +41,8 @@ export type PtDashboardSummary = {
   overdueCount: number;
   dueSoonCount: number;
   noPlanCount: number;
+  /** Auto-generated drafts ready for review */
+  autoDrafts: AutoDraftItem[];
   /** Most recent 5 plans from last 14 days (newest first) for Recent activity */
   recentActivity: RecentActivityItem[];
 };
@@ -142,6 +151,13 @@ export async function getPtDashboardSummary(): Promise<PtDashboardSummary> {
       createdAt: p.created_at,
     }));
 
+  let autoDrafts: AutoDraftItem[] = [];
+  try {
+    autoDrafts = await listAutoDraftPlansForDashboard();
+  } catch {
+    // ignore
+  }
+
   return {
     activeClients: clients.length,
     plansThisWeek,
@@ -152,6 +168,7 @@ export async function getPtDashboardSummary(): Promise<PtDashboardSummary> {
     overdueCount,
     dueSoonCount,
     noPlanCount,
+    autoDrafts,
     recentActivity,
   };
 }

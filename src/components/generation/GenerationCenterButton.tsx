@@ -82,12 +82,11 @@ export default function GenerationCenterButton() {
     return () => clearInterval(id);
   }, [open, fetchJobs, pollMs]);
 
-  const sorted = [...jobs].sort((a, b) => {
-    const aActive = a.status === "queued" || a.status === "running" ? 1 : 0;
-    const bActive = b.status === "queued" || b.status === "running" ? 1 : 0;
-    if (aActive !== bActive) return bActive - aActive;
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-  });
+  // Only show active jobs so the list doesn't build up when plans are done
+  const activeJobs = jobs.filter((j) => j.status === "queued" || j.status === "running");
+  const sorted = [...activeJobs].sort((a, b) =>
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   return (
     <>

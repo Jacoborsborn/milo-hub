@@ -6,6 +6,11 @@ type BillingProfile = {
   subscription_tier: string | null;
   trial_ends_at: string | null;
   brand_logo_url: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  cancel_at_period_end: boolean | null;
+  cancel_effective_at: string | null;
+  current_period_end: string | null;
 };
 
 export async function GET() {
@@ -16,7 +21,8 @@ export async function GET() {
     return NextResponse.json(null, { status: 401 });
   }
 
-  let selectColumns = "subscription_status, subscription_tier, trial_ends_at, brand_logo_url";
+  let selectColumns =
+    "subscription_status, subscription_tier, trial_ends_at, brand_logo_url, stripe_customer_id, stripe_subscription_id, cancel_at_period_end, cancel_effective_at, current_period_end";
   let profile: BillingProfile | null;
   let error: unknown;
   const first = await supabase
@@ -27,7 +33,7 @@ export async function GET() {
   profile = first.data as BillingProfile | null;
   error = first.error;
 
-  // If brand_logo_url column doesn't exist yet (migration not run), retry without it
+  // If optional columns don't exist (migration not run), retry with minimal columns
   if (error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "42703") {
     selectColumns = "subscription_status, subscription_tier, trial_ends_at";
     const retry = await supabase
@@ -37,7 +43,15 @@ export async function GET() {
       .maybeSingle();
     const retryData = retry.data;
     profile = retryData != null && typeof retryData === "object" && !Array.isArray(retryData)
-      ? { ...(retryData as Record<string, unknown>), brand_logo_url: null } as BillingProfile
+      ? {
+          ...(retryData as Record<string, unknown>),
+          brand_logo_url: null,
+          stripe_customer_id: null,
+          stripe_subscription_id: null,
+          cancel_at_period_end: null,
+          cancel_effective_at: null,
+          current_period_end: null,
+        } as BillingProfile
       : null;
     error = retry.error;
   }
@@ -55,6 +69,11 @@ export async function GET() {
       subscription_tier: null,
       trial_ends_at: null,
       brand_logo_url: null,
+      stripe_customer_id: null,
+      stripe_subscription_id: null,
+      cancel_at_period_end: null,
+      cancel_effective_at: null,
+      current_period_end: null,
     });
   }
 

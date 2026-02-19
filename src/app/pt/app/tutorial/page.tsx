@@ -1,11 +1,18 @@
-// src/app/tutorial/page.tsx
+// src/app/pt/app/tutorial/page.tsx
 
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { Suspense } from "react";
 import TutorialStepImage from "@/components/tutorial/TutorialStepImage";
+import TrialSuccessBanner from "@/components/pt/TrialSuccessBanner";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const metadata = {
   title: "Tutorial | Milo Hub",
 };
+
+export const dynamic = "force-dynamic";
 
 type Step = {
   title: string;
@@ -70,9 +77,63 @@ const steps: Step[] = [
   },
 ];
 
-export default function TutorialPage() {
+export default async function TutorialPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ success?: string; session_id?: string }> | { success?: string; session_id?: string };
+}) {
+  const supabase = await supabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+
+  if (!userData?.user) {
+    redirect("/signup");
+  }
+
+  const params = searchParams instanceof Promise ? await searchParams : searchParams ?? {};
+  const sessionId = params?.session_id?.trim();
+  if (sessionId) {
+    const h = await headers();
+    const host = h.get("host") ?? "";
+    const proto = h.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
+    const baseUrl = host ? `${proto}://${host}` : process.env.NEXT_PUBLIC_APP_URL ?? "";
+    const cookie = h.get("cookie") ?? "";
+    try {
+      const syncRes = await fetch(`${baseUrl}/api/billing/sync-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", cookie },
+        body: JSON.stringify({ session_id: sessionId }),
+      });
+      if (!syncRes.ok) {
+        const errBody = await syncRes.text();
+        console.error("[tutorial] sync-session failed", syncRes.status, errBody);
+      }
+    } catch (e) {
+      console.error("[tutorial] sync-session fetch error", e);
+    }
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("subscription_status, trial_ends_at")
+    .eq("id", userData.user.id)
+    .single();
+
+  const status = profile?.subscription_status;
+  const trialEndsAt = profile?.trial_ends_at ? new Date(profile.trial_ends_at) : null;
+  const now = new Date();
+  const hasAccess =
+    status === "active" ||
+    (status === "trial" && trialEndsAt && trialEndsAt > now);
+
+  if (!hasAccess) {
+    redirect("/pt/app/billing");
+  }
+
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-10">
+      <Suspense fallback={null}>
+        <TrialSuccessBanner />
+      </Suspense>
       <header className="mb-8">
         <h1 className="text-3xl font-semibold tracking-tight">Tutorial</h1>
         <p className="mt-2 text-sm text-muted-foreground">

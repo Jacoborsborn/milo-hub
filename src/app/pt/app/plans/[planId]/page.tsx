@@ -22,6 +22,9 @@ interface Plan {
   completions?: { week_number: number; day_index: number; completed_at: string }[];
   client_name?: string | null;
   coach_display_name?: string | null;
+  status?: "draft" | "sent";
+  generated_by?: "manual" | "auto";
+  needs_regen?: boolean;
 }
 
 type WeekCompletionStat = {
@@ -382,6 +385,9 @@ export default function PlanDetailPage({
   const systemStatusOverlapMinimised = sharedIngredientCount > 2;
   const hasAnySystemStatus = systemStatusMacroAligned || systemStatusBudgetOptimised || systemStatusOverlapMinimised;
 
+  const isAutoDraft = plan.status === "draft" && plan.generated_by === "auto";
+  const showNeedsRegen = plan.needs_regen === true;
+
   if (isMealPlan) {
     return (
       <div
@@ -395,7 +401,16 @@ export default function PlanDetailPage({
             { label: "Meal Plan" },
           ]}
         />
-
+        {isAutoDraft && (
+          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Auto-generated draft. Review before sending.
+          </div>
+        )}
+        {showNeedsRegen && (
+          <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-900">
+            Inputs changed since generation. Regenerate recommended.
+          </div>
+        )}
         <MealPlanHeader
           clientLabel={clientLabel}
           weekCommencingLabel={weekCommencingLabel}
@@ -478,7 +493,16 @@ export default function PlanDetailPage({
           { label: "Workout Plan" },
         ]}
       />
-
+      {isAutoDraft && (
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Auto-generated draft. Review before sending.
+        </div>
+      )}
+      {showNeedsRegen && (
+        <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-900">
+          Inputs changed since generation. Regenerate recommended.
+        </div>
+      )}
       {/* Plan header */}
       <div className="bg-white rounded-xl shadow-sm border border-neutral-100 overflow-hidden mb-4" data-plan-authority>
         <div className="px-5 py-4">
