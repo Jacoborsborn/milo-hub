@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Redirect-only route. No UI.
  * - Not authenticated + session_id in URL (post-checkout) → /pt/login so they can log in then go to tutorial
