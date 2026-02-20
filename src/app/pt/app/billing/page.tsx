@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import PricingCards from "@/components/billing/PricingCards";
 
 type Profile = {
   subscription_status: string;
@@ -571,64 +572,21 @@ export default function BillingPage() {
         </>
       )}
 
-      <div style={{ marginTop: 40 }}>
-        <h2>Plans</h2>
-        <p style={{ color: "#666", marginTop: 6 }}>
+      <section className="mt-10">
+        <h2 className="text-lg font-semibold text-neutral-900">Plans</h2>
+        <p className="mt-1.5 text-sm text-neutral-500">
           3-day free trial included. Cancel anytime.
         </p>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginTop: 20 }}>
-          {TIERS.map((t) => (
-            <div
-              key={t.tier}
-              style={{
-                border: t.highlight ? "2px solid #0070f3" : "1px solid #ddd",
-                borderRadius: 10,
-                padding: 18,
-              }}
-            >
-              {t.highlight && (
-                <div style={{ fontSize: 12, color: "#0070f3", fontWeight: "bold", marginBottom: 8 }}>
-                  MOST POPULAR
-                </div>
-              )}
-
-              <div style={{ fontSize: 18, fontWeight: "bold" }}>{t.name}</div>
-              <div style={{ fontSize: 22, marginTop: 6 }}>{t.price}</div>
-              <div style={{ marginTop: 6, color: "#666", fontSize: 13 }}>{t.subtitle}</div>
-
-              <ul style={{ marginTop: 14, paddingLeft: 18, color: "#333", fontSize: 13 }}>
-                {t.bullets.map((b) => (
-                  <li key={b} style={{ marginBottom: 6 }}>
-                    {b}
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                onClick={() => startCheckout(t.tier)}
-                disabled={checkoutLoadingTier !== null || subscription_status === "active"}
-                style={{
-                  marginTop: 14,
-                  width: "100%",
-                  padding: "10px 12px",
-                  background: subscription_status === "active" ? "#999" : "#0070f3",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 8,
-                  cursor: subscription_status === "active" ? "not-allowed" : "pointer",
-                }}
-              >
-                {subscription_status === "active"
-                  ? "Already Active"
-                  : checkoutLoadingTier === t.tier
-                  ? "Redirecting..."
-                  : `Start ${t.name}`}
-              </button>
-            </div>
-          ))}
+        <div className="mt-6">
+          <PricingCards
+            tiers={TIERS}
+            currentTier={subscription_tier}
+            subscriptionStatus={subscription_status}
+            onSelectTier={startCheckout}
+            loadingTier={checkoutLoadingTier}
+          />
         </div>
-      </div>
+      </section>
     </div>
   );
 }

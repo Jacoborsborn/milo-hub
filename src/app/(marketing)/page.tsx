@@ -42,13 +42,6 @@ export default function MarketingHomePage() {
             >
               Start free trial
             </a>
-            <a
-              href="#demo"
-              className="inline-flex items-center justify-center rounded-[10px] h-12 px-6 font-medium bg-white"
-              style={{ border: "1px solid #e2e8f0" }}
-            >
-              See it in action
-            </a>
           </div>
           <p
             className="mt-4 text-[14px]"
