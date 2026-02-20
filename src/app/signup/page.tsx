@@ -35,15 +35,24 @@ export default function SignupPage() {
                 <ValueRow title="Remote scale without chaos" desc="Structured layouts clients understand. Less admin, more coaching." />
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-5">
-                <p className="text-sm font-semibold text-slate-900">Typical outcomes</p>
-                <div className="mt-3 grid grid-cols-3 gap-3">
-                  <Stat k="3–6h" v="saved / week" />
-                  <Stat k="+20–40%" v="capacity" />
-                  <Stat k="1 system" v="delivery" />
+              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+                <p className="text-sm font-semibold text-neutral-900">Typical outcomes</p>
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                    <div className="text-sm font-medium text-neutral-900">Faster drafts</div>
+                    <div className="mt-1 text-xs text-neutral-600">template → draft quickly</div>
+                  </div>
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                    <div className="text-sm font-medium text-neutral-900">Cleaner delivery</div>
+                    <div className="mt-1 text-xs text-neutral-600">consistent weeks, consistent format</div>
+                  </div>
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                    <div className="text-sm font-medium text-neutral-900">More headspace</div>
+                    <div className="mt-1 text-xs text-neutral-600">less admin / less rework</div>
+                  </div>
                 </div>
-                <p className="mt-3 text-xs leading-5 text-slate-600">
-                  These are positioning metrics (not hard promises). We&apos;ll refine with real analytics later.
+                <p className="mt-4 text-xs text-neutral-500">
+                  Illustrative outcomes. Exact results vary by workflow and client load.
                 </p>
               </div>
 
@@ -70,11 +79,3 @@ function ValueRow({ title, desc }: { title: string; desc: string }) {
   );
 }
 
-function Stat({ k, v }: { k: string; v: string }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
-      <div className="text-lg font-semibold text-slate-900">{k}</div>
-      <div className="text-xs text-slate-600">{v}</div>
-    </div>
-  );
-}

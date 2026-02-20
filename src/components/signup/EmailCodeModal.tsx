@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { trackMetaEvent } from "@/lib/meta";
 
 export default function EmailCodeModal({
   open,
@@ -63,6 +64,7 @@ export default function EmailCodeModal({
         throw new Error(data?.error ?? "Verification failed.");
       }
 
+      trackMetaEvent("Lead");
       onVerified();
     } catch (e: unknown) {
       setErr(e instanceof Error ? e.message : "Verification failed.");

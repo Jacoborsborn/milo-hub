@@ -19,6 +19,9 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const tier = String(body?.tier ?? "").trim();
+    const fromParam = body?.from ? String(body.from).trim() : null;
+    const redirectToPtHubSuccess =
+      fromParam === "pt-hub-ad" || fromParam === "pt-hub-landing";
     const heardFrom = body?.heardFrom ? String(body.heardFrom).trim() : null;
     const clientsCountRaw =
       body?.clientsCount === 0 || body?.clientsCount ? Number(body.clientsCount) : null;
@@ -53,9 +56,16 @@ export async function POST(req: Request) {
       .maybeSingle();
 
     const existingCustomerId = profile?.stripe_customer_id?.trim() || null;
-    const appUrl =
+    const appUrlRaw =
       process.env.NEXT_PUBLIC_APP_URL ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+    const appOrigin = (() => {
+      try {
+        return new URL(appUrlRaw).origin;
+      } catch {
+        return appUrlRaw.replace(/\/.*$/, "") || "http://localhost:3000";
+      }
+    })();
 
     const session = await getStripe().checkout.sessions.create({
       mode: "subscription",
@@ -67,8 +77,12 @@ export async function POST(req: Request) {
       },
       metadata: { supabase_user_id: userData.user.id, user_id: userData.user.id, tier },
       client_reference_id: userData.user.id,
-      success_url: `${appUrl}/pt/app/tutorial?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/pt/app/billing?canceled=true`,
+      success_url: redirectToPtHubSuccess
+        ? `${appOrigin}/pt-hub/success?from=pt-hub-ad&source=stripe&session_id={CHECKOUT_SESSION_ID}`
+        : `${appOrigin}/pt/app/tutorial?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: redirectToPtHubSuccess
+        ? `${appOrigin}/pt-hub?canceled=1`
+        : `${appOrigin}/pt/app/billing?canceled=true`,
       ...(existingCustomerId ? { customer: existingCustomerId } : { customer_email: userData.user.email ?? undefined }),
     });
 

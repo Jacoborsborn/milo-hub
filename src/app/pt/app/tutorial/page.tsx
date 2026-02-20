@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { Suspense } from "react";
 import TutorialStepImage from "@/components/tutorial/TutorialStepImage";
 import TrialSuccessBanner from "@/components/pt/TrialSuccessBanner";
+import StripeSuccessPixel from "@/components/pt/StripeSuccessPixel";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export const metadata = {
@@ -114,11 +115,12 @@ export default async function TutorialPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("subscription_status, trial_ends_at")
+    .select("subscription_status, subscription_tier, trial_ends_at")
     .eq("id", userData.user.id)
     .single();
 
   const status = profile?.subscription_status;
+  const tier = profile?.subscription_tier ?? null;
   const trialEndsAt = profile?.trial_ends_at ? new Date(profile.trial_ends_at) : null;
   const now = new Date();
   const hasAccess =
@@ -129,8 +131,16 @@ export default async function TutorialPage({
     redirect("/pt/app/billing");
   }
 
+  const successParam = params?.success === "true";
+
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-10">
+      <StripeSuccessPixel
+        success={successParam}
+        sessionId={sessionId ?? null}
+        subscriptionStatus={status ?? null}
+        subscriptionTier={tier}
+      />
       <Suspense fallback={null}>
         <TrialSuccessBanner />
       </Suspense>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { LegalModal, type LegalModalVariant } from "@/components/ui/LegalModal";
 import EmailCodeModal from "@/components/signup/EmailCodeModal";
 
@@ -88,6 +89,9 @@ function planCopy(plan: RecommendedPlan) {
 }
 
 export default function SignupWizard() {
+  const searchParams = useSearchParams();
+  const fromParam = searchParams.get("from")?.trim() ?? null;
+
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -143,6 +147,7 @@ export default function SignupWizard() {
         tier: recommended,
         heardFrom: state.heardFrom,
         clientsCount: state.clientsCount,
+        ...(fromParam ? { from: fromParam } : {}),
       }),
     });
 
