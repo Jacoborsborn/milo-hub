@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" fill="none">
+  <rect width="800" height="450" rx="12" fill="#f1f5f9"/>
+  <rect x="300" y="175" width="200" height="100" rx="8" stroke="#cbd5e1" stroke-width="2" fill="none"/>
+  <text x="400" y="232" font-family="system-ui,sans-serif" font-size="14" fill="#64748b" text-anchor="middle">Step 1</text>
+</svg>

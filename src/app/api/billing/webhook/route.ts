@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { sendTrialStartedEmail } from "@/lib/email/resend";
 
 /**
  * Stripe webhook handler. Updates Supabase profiles from subscription/trial events.
@@ -185,6 +186,40 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Profile update failed", details: error.message }, { status: 500 });
       }
       console.log("[webhook] profiles upsert ok", { eventId: event.id, userId });
+
+      // Trial started email: send once per user (idempotent via trial_started_email_sent_at).
+      if (mapped.subscription_status === "trial") {
+        const { data: profileRow } = await supabaseAdmin
+          .from("profiles")
+          .select("trial_started_email_sent_at, email")
+          .eq("id", userId)
+          .single();
+
+        if (!profileRow?.trial_started_email_sent_at) {
+          const to =
+            (session.customer_email as string | undefined)?.trim() ||
+            (profileRow as { email?: string } | null)?.email?.trim() ||
+            null;
+          if (to) {
+            const sendResult = await sendTrialStartedEmail({ to });
+            if (sendResult.error) {
+              console.error("[webhook] trial started email failed", { userId, to, error: sendResult.error });
+              return NextResponse.json({ error: "Trial email send failed" }, { status: 500 });
+            }
+            const { error: updateErr } = await supabaseAdmin
+              .from("profiles")
+              .update({ trial_started_email_sent_at: new Date().toISOString() })
+              .eq("id", userId);
+            if (updateErr) {
+              console.error("[webhook] trial_started_email_sent_at update failed", updateErr);
+            }
+            console.log("[webhook] trial started email sent", { eventId: event.id, userId });
+          } else {
+            console.warn("[webhook] trial started but no email (customer_email or profile.email)", { userId });
+          }
+        }
+      }
+
       return NextResponse.json({ ok: true });
     }
 

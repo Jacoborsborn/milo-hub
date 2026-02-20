@@ -15,11 +15,14 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
+// Absolute paths from public/ — use .png if you have step-1.png … step-6.png; else .svg placeholders
+const TUTORIAL_IMAGE_EXT = ".png";
+const TUTORIAL_IMAGE_BASE = "/tutorial/step-";
+
 type Step = {
   title: string;
   description: string;
   imageAlt: string;
-  // Use local assets later; for now this is a placeholder path you can replace.
   imageSrc: string;
   ctaLabel?: string;
   ctaHref?: string;
@@ -31,7 +34,7 @@ const steps: Step[] = [
     description:
       "Confirm your subscription status, tier, and trial end date so nothing blocks generation.",
     imageAlt: "Profile or billing status screenshot placeholder",
-    imageSrc: "/tutorial/step-1.png",
+    imageSrc: `${TUTORIAL_IMAGE_BASE}1${TUTORIAL_IMAGE_EXT}`,
     ctaLabel: "Go to Profile",
     ctaHref: "/pt/app/profile",
   },
@@ -40,7 +43,7 @@ const steps: Step[] = [
     description:
       "Add a client and fill their goals, preferences, restrictions, and other inputs used for generation.",
     imageAlt: "Create client and inputs screenshot placeholder",
-    imageSrc: "/tutorial/step-2.png",
+    imageSrc: `${TUTORIAL_IMAGE_BASE}2${TUTORIAL_IMAGE_EXT}`,
     ctaLabel: "Go to Clients",
     ctaHref: "/pt/app/clients",
   },
@@ -49,7 +52,7 @@ const steps: Step[] = [
     description:
       "Use a template you can reuse. Templates define structure so outputs stay consistent and professional.",
     imageAlt: "Templates library screenshot placeholder",
-    imageSrc: "/tutorial/step-3.png",
+    imageSrc: `${TUTORIAL_IMAGE_BASE}3${TUTORIAL_IMAGE_EXT}`,
     ctaLabel: "Go to Programs",
     ctaHref: "/templates",
   },
@@ -58,21 +61,21 @@ const steps: Step[] = [
     description:
       "Attach a program to a client so the generator combines structure (template) + details (inputs).",
     imageAlt: "Assign template to client screenshot placeholder",
-    imageSrc: "/tutorial/step-4.png",
+    imageSrc: `${TUTORIAL_IMAGE_BASE}4${TUTORIAL_IMAGE_EXT}`,
   },
   {
     title: "5) Review Plan",
     description:
       "Open the generated plan, check structure, make quick edits, and confirm everything looks professional.",
     imageAlt: "Review plan screenshot placeholder",
-    imageSrc: "/tutorial/step-5.png",
+    imageSrc: `${TUTORIAL_IMAGE_BASE}5${TUTORIAL_IMAGE_EXT}`,
   },
   {
     title: "6) Send to Client (Email)",
     description:
       "Use the share or email feature to send the plan directly to your client. They receive a mobile-friendly link instantly.",
     imageAlt: "Send to client screenshot placeholder",
-    imageSrc: "/tutorial/step-6.png",
+    imageSrc: `${TUTORIAL_IMAGE_BASE}6${TUTORIAL_IMAGE_EXT}`,
     ctaLabel: "Go to Clients",
     ctaHref: "/pt/app/clients",
   },
@@ -235,7 +238,7 @@ export default async function TutorialPage({
         </div>
       </section>
 
-      {/* Images: public/tutorial/step-1.png … step-6.png. TutorialStepImage shows placeholder if missing. */}
+      {/* Step images: public/tutorial/step-1.png … step-6.png (absolute paths). Add .png files or set TUTORIAL_IMAGE_EXT to ".svg" for SVG placeholders. */}
     </main>
   );
 }

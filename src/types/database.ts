@@ -211,6 +211,7 @@ export interface PlanJobUpdate {
 /** Profile row (auth.users extended via profiles table) */
 export interface Profile {
   id: string;
+  email?: string | null;
   display_name?: string | null;
   full_name?: string | null;
   name?: string | null;
@@ -219,6 +220,7 @@ export interface Profile {
   subscription_status?: string | null;
   subscription_tier?: string | null;
   trial_ends_at?: string | null;
+  trial_started_email_sent_at?: string | null;
   stripe_customer_id?: string | null;
   stripe_subscription_id?: string | null;
   cancel_at_period_end?: boolean | null;
