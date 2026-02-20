@@ -18,6 +18,7 @@ export type SupabaseEnv = {
 export function getSupabaseEnv(): SupabaseEnv | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  console.log("[supabase env.ts getSupabaseEnv] NEXT_PUBLIC_SUPABASE_URL:", url ?? "undefined");
   if (!url || !anonKey) return null;
   return { url, anonKey };
 }

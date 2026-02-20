@@ -22,6 +22,7 @@ export async function POST(req: Request) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  console.log("[supabase api/cron/autogen-drafts] NEXT_PUBLIC_SUPABASE_URL:", supabaseUrl ?? "undefined");
   if (!supabaseUrl || !anonKey) {
     return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
   }

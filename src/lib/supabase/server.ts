@@ -8,6 +8,7 @@ import { assertSupabaseEnv } from "./env";
  */
 export const supabaseServer = async () => {
   const { url, anonKey } = assertSupabaseEnv();
+  console.log("[supabase server.ts supabaseServer] URL:", url ?? "undefined");
   const cookieStore = await cookies();
 
   return createServerClient(url, anonKey, {

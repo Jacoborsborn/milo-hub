@@ -32,7 +32,7 @@ const steps: Step[] = [
     imageAlt: "Profile or billing status screenshot placeholder",
     imageSrc: "/tutorial/step-1.png",
     ctaLabel: "Go to Profile",
-    ctaHref: "/profile",
+    ctaHref: "/pt/app/profile",
   },
   {
     title: "2) Create Client + Inputs",
@@ -41,7 +41,7 @@ const steps: Step[] = [
     imageAlt: "Create client and inputs screenshot placeholder",
     imageSrc: "/tutorial/step-2.png",
     ctaLabel: "Go to Clients",
-    ctaHref: "/clients",
+    ctaHref: "/pt/app/clients",
   },
   {
     title: "3) Create / Choose Template (Program)",
@@ -50,7 +50,7 @@ const steps: Step[] = [
     imageAlt: "Templates library screenshot placeholder",
     imageSrc: "/tutorial/step-3.png",
     ctaLabel: "Go to Programs",
-    ctaHref: "/programs",
+    ctaHref: "/templates",
   },
   {
     title: "4) Assign Template to Client",
@@ -73,7 +73,7 @@ const steps: Step[] = [
     imageAlt: "Send to client screenshot placeholder",
     imageSrc: "/tutorial/step-6.png",
     ctaLabel: "Go to Clients",
-    ctaHref: "/clients",
+    ctaHref: "/pt/app/clients",
   },
 ];
 
@@ -142,19 +142,19 @@ export default async function TutorialPage({
 
         <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link
-            href="/clients"
+            href="/pt/app/clients"
             className="inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
           >
             Start: Create a Client
           </Link>
           <Link
-            href="/programs"
+            href="/templates"
             className="inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
           >
             Browse Programs
           </Link>
           <Link
-            href="/review-plans"
+            href="/pt/app/review-plans"
             className="inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
           >
             Review Plans

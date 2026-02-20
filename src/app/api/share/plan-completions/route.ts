@@ -5,6 +5,7 @@ import { verifyShareToken } from "@/lib/plan-share-token";
 function getServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  console.log("[supabase api/share/plan-completions getServiceClient] NEXT_PUBLIC_SUPABASE_URL:", url ?? "undefined");
   if (!url || !key) return null;
   return createClient(url, key);
 }

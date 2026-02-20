@@ -699,7 +699,7 @@ export default function ReviewPlansPage() {
               Go to Clients
             </Link>
             <Link
-              href="/pt/app/programs"
+              href="/templates"
               className="inline-flex h-10 items-center justify-center rounded-[12px] border px-4 text-sm font-medium transition-colors hover:bg-[var(--rp-surface-2)]"
               style={{
                 borderColor: "var(--rp-border)",

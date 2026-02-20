@@ -11,6 +11,7 @@ function getSupabaseClient() {
   if (supabaseInstance) return supabaseInstance;
 
   const env = getSupabaseEnv();
+  console.log("[supabase browser.ts getSupabaseClient] NEXT_PUBLIC_SUPABASE_URL:", env?.url ?? "undefined");
   if (!env) {
     throw new Error(
       "Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY"

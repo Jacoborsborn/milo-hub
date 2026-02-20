@@ -8,6 +8,7 @@ export async function updateSession(request: NextRequest) {
   });
 
   const env = getSupabaseEnv();
+  console.log("[supabase middleware.ts updateSession] NEXT_PUBLIC_SUPABASE_URL:", env?.url ?? "undefined");
   if (!env) return response;
 
   const supabase = createServerClient(

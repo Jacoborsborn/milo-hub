@@ -59,6 +59,7 @@ export async function POST(req: Request) {
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  console.log("[supabase billing/sync-session] NEXT_PUBLIC_SUPABASE_URL:", url ?? "undefined");
   if (!url || !serviceKey) {
     console.error("[sync-session] Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
     return NextResponse.json({ error: "Server configuration error" }, { status: 500 });

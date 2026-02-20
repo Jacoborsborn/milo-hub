@@ -1,127 +1,103 @@
+"use client";
+
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useState } from "react";
 
-async function createSupabaseServerClient() {
-  const cookieStore = await cookies();
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
-        },
-      },
-    }
+function ValueRow({ title, desc }: { title: string; desc: string }) {
+  return (
+    <div className="flex gap-3">
+      <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-blue-600" />
+      <div>
+        <div className="text-sm font-semibold text-slate-900">{title}</div>
+        <div className="text-sm leading-6 text-slate-600">{desc}</div>
+      </div>
+    </div>
   );
 }
 
-function isTrialActive(trialEndsAt: string | null) {
-  if (!trialEndsAt) return false;
-  const t = Date.parse(trialEndsAt);
-  if (!Number.isFinite(t)) return false;
-  return t > Date.now();
+function LoginFormFallback() {
+  return (
+    <main className="min-h-screen bg-white">
+      <div className="mx-auto max-w-[1100px] px-6 py-16">
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_20px_40px_rgba(15,23,42,0.06)]">
+          <div className="inline-flex h-11 w-64 animate-pulse rounded-[10px] bg-slate-200" />
+          <div className="mt-4 inline-flex h-8 w-48 animate-pulse rounded bg-slate-200" />
+          <div className="mt-6 space-y-4">
+            <div className="h-11 w-full animate-pulse rounded-[10px] bg-slate-100" />
+            <div className="h-11 w-full animate-pulse rounded-[10px] bg-slate-100" />
+            <div className="h-11 w-full animate-pulse rounded-[10px] bg-slate-100" />
+          </div>
+        </div>
+      </div>
+    </main>
+  );
 }
 
-async function loginAction(formData: FormData) {
-  "use server";
+function PtLoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  const password = String(formData.get("password") ?? "");
+  const nextPath = searchParams?.get("next")?.trim() ?? "";
+  const sessionId = searchParams?.get("session_id")?.trim() ?? "";
+  const successParam = searchParams?.get("success") ?? "";
 
-  if (!email || !password) {
-    redirect("/pt/login?error=Missing%20email%20or%20password");
-  }
+  const urlError = searchParams?.get("error");
+  const initialError = urlError ? decodeURIComponent(urlError) : null;
 
-  const supabase = await createSupabaseServerClient();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(initialError);
+  const [loading, setLoading] = useState(false);
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error || !data.session) {
-    redirect("/pt/login?error=Invalid%20login%20details");
-  }
-
-  // After login, route based on access.
-  const { data: profile, error: profErr } = await supabase
-    .from("profiles")
-    .select("subscription_status, trial_ends_at")
-    .eq("id", data.user.id)
-    .single();
-
-  if (profErr || !profile) {
-    redirect("/pt/app/tutorial");
-  }
-
-  const status = String(profile.subscription_status ?? "");
-  const trialOk = isTrialActive(profile.trial_ends_at ?? null);
-
-  const hasAccess =
-    status === "active" ||
-    status === "trialing" ||
-    status === "past_due" ||
-    trialOk;
-
-  const next = String(formData.get("next") ?? "").trim();
-  if (next && next.startsWith("/pt/app") && hasAccess) {
-    redirect(next);
-  }
-  redirect(hasAccess ? "/pt/app/tutorial" : "/pt/app/billing");
-}
-
-export default async function PtLoginPage({
-  searchParams,
-}: {
-  searchParams?: { error?: string; next?: string; success?: string; session_id?: string } | Promise<{ error?: string; next?: string; success?: string; session_id?: string }>;
-}) {
-  const supabase = await createSupabaseServerClient();
-  const { data: userData } = await supabase.auth.getUser();
-
-  const params = searchParams instanceof Promise ? await searchParams : searchParams ?? {};
-  const nextPath = params?.next?.trim();
-  const sessionId = params?.session_id?.trim();
-  const successParam = params?.success;
-
-  if (userData?.user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("subscription_status, trial_ends_at")
-      .eq("id", userData.user.id)
-      .single();
-
-    const status = String(profile?.subscription_status ?? "");
-    const trialOk = isTrialActive(profile?.trial_ends_at ?? null);
-
-    const hasAccess =
-      status === "active" || status === "trialing" || status === "past_due" || trialOk;
-
-    if (hasAccess && nextPath?.startsWith("/pt/app")) {
-      redirect(nextPath);
-    }
-    redirect(hasAccess ? "/pt/app/tutorial" : "/pt/app/billing");
-  }
-
-  const error = params?.error ? decodeURIComponent(params.error) : null;
   const nextValue =
     nextPath && sessionId && nextPath.startsWith("/pt/app/tutorial")
       ? `/pt/app/tutorial?success=${encodeURIComponent(successParam || "true")}&session_id=${encodeURIComponent(sessionId)}`
-      : nextPath || (successParam && sessionId ? `/pt/app/tutorial?success=${encodeURIComponent(successParam || "true")}&session_id=${encodeURIComponent(sessionId)}` : "") || "";
+      : nextPath ||
+        (successParam && sessionId
+          ? `/pt/app/tutorial?success=${encodeURIComponent(successParam || "true")}&session_id=${encodeURIComponent(sessionId)}`
+          : "") ||
+        "";
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError(null);
+      setLoading(true);
+      try {
+        const res = await fetch("/api/pt/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: email.trim().toLowerCase(),
+            password,
+            ...(nextValue ? { next: nextValue } : {}),
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setError(data?.error ?? "Login failed.");
+          setLoading(false);
+          return;
+        }
+        if (data?.redirect) {
+          router.push(data.redirect);
+          return;
+        }
+        router.push("/pt/app");
+      } catch {
+        setError("Login failed.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [email, password, nextValue, router]
+  );
 
   return (
     <main className="min-h-screen bg-white">
       <div className="mx-auto max-w-[1100px] px-6 py-16">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-start">
-          {/* Left: Login card */}
           <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_20px_40px_rgba(15,23,42,0.06)]">
             <div className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-600">
               PT LOGIN
@@ -140,8 +116,7 @@ export default async function PtLoginPage({
               </div>
             )}
 
-            <form action={loginAction} className="mt-6 space-y-4">
-              {nextValue ? <input type="hidden" name="next" value={nextValue} /> : null}
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <label className="block">
                 <div className="text-sm font-semibold text-slate-900">Email</div>
                 <input
@@ -149,6 +124,8 @@ export default async function PtLoginPage({
                   type="email"
                   autoComplete="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="mt-2 h-11 w-full rounded-[10px] border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   placeholder="you@company.com"
                 />
@@ -169,16 +146,21 @@ export default async function PtLoginPage({
                   type="password"
                   autoComplete="current-password"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="mt-2 h-11 w-full rounded-[10px] border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   placeholder="••••••••"
                 />
               </label>
 
+              {nextValue ? <input type="hidden" name="next" value={nextValue} /> : null}
+
               <button
                 type="submit"
-                className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-[10px] bg-blue-600 px-5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(0,0,0,0.08)] hover:bg-blue-700"
+                disabled={loading}
+                className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-[10px] bg-blue-600 px-5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(0,0,0,0.08)] hover:bg-blue-700 disabled:opacity-60"
               >
-                Log in
+                {loading ? "Logging in…" : "Log in"}
               </button>
 
               <div className="pt-2 text-center text-xs text-slate-500">
@@ -190,7 +172,6 @@ export default async function PtLoginPage({
             </form>
           </div>
 
-          {/* Right: Value panel (matches signup styling) */}
           <aside className="rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_20px_40px_rgba(15,23,42,0.06)]">
             <h2 className="text-lg font-semibold text-slate-900">What you get</h2>
 
@@ -226,14 +207,10 @@ export default async function PtLoginPage({
   );
 }
 
-function ValueRow({ title, desc }: { title: string; desc: string }) {
+export default function PtLoginPage() {
   return (
-    <div className="flex gap-3">
-      <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-blue-600" />
-      <div>
-        <div className="text-sm font-semibold text-slate-900">{title}</div>
-        <div className="text-sm leading-6 text-slate-600">{desc}</div>
-      </div>
-    </div>
+    <Suspense fallback={<LoginFormFallback />}>
+      <PtLoginForm />
+    </Suspense>
   );
 }

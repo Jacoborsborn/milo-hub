@@ -35,8 +35,10 @@ export async function POST(req: Request) {
   if (pwErr) return NextResponse.json({ error: pwErr }, { status: 400 });
 
   const cookieStore = await cookies();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  console.log("[supabase api/auth/verify-otp] NEXT_PUBLIC_SUPABASE_URL:", url ?? "undefined");
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    url,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {

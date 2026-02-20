@@ -91,7 +91,13 @@ export default function ResetVerifyClient() {
             </div>
           )}
 
-          <div className="mt-6 space-y-4">
+          <form
+            className="mt-6 space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              verify();
+            }}
+          >
             <label className="block">
               <div className="text-sm font-semibold text-slate-900">Code</div>
               <input
@@ -110,6 +116,7 @@ export default function ResetVerifyClient() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
+                autoComplete="new-password"
                 className="mt-2 h-11 w-full rounded-[10px] border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 placeholder="••••••••"
               />
@@ -121,14 +128,14 @@ export default function ResetVerifyClient() {
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 type="password"
+                autoComplete="new-password"
                 className="mt-2 h-11 w-full rounded-[10px] border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 placeholder="••••••••"
               />
             </label>
 
             <button
-              type="button"
-              onClick={verify}
+              type="submit"
               disabled={loading}
               className="inline-flex h-11 w-full items-center justify-center rounded-[10px] bg-blue-600 px-5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(0,0,0,0.08)] hover:bg-blue-700 disabled:opacity-60"
             >
@@ -141,7 +148,7 @@ export default function ResetVerifyClient() {
                 Resend code
               </Link>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </main>

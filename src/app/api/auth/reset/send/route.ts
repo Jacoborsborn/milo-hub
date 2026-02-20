@@ -4,8 +4,10 @@ import { cookies } from "next/headers";
 
 async function supa() {
   const cookieStore = await cookies();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  console.log("[supabase api/auth/reset/send supa] NEXT_PUBLIC_SUPABASE_URL:", url ?? "undefined");
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    url,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {

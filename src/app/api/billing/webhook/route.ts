@@ -3,6 +3,15 @@ import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+/**
+ * Stripe webhook handler. Updates Supabase profiles from subscription/trial events.
+ *
+ * Stripe dashboard: set endpoint to https://<your-domain>/api/billing/webhook
+ * Env: STRIPE_WEBHOOK_SECRET (signing secret for this endpoint), SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SUPABASE_URL
+ *
+ * Handled events: checkout.session.completed, customer.subscription.created/updated/deleted,
+ * invoice.paid, invoice.payment_succeeded. Returns 200 only after successful Supabase update; 500 on failure (Stripe retries).
+ */
 // IMPORTANT: Webhooks must use the raw body for signature verification.
 export const runtime = "nodejs";
 
@@ -20,6 +29,7 @@ function tierFromPriceId(priceId: string | undefined): string | null {
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  console.log("[supabase billing/webhook getSupabaseAdmin] NEXT_PUBLIC_SUPABASE_URL:", url ?? "undefined");
   if (!url || !serviceKey) {
     console.error("[webhook] FATAL: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing. Webhook cannot write to Supabase.");
   }
@@ -42,12 +52,11 @@ async function getProfileIdByStripeCustomerId(
   return (data as { id?: string } | null)?.id ?? null;
 }
 
-/** Build billing intelligence fields from a Stripe subscription (for profiles). */
+/** Build billing intelligence fields from a Stripe subscription (for profiles). Omits cancel_at_period_end (not in schema). */
 function subscriptionToIntelligenceFields(sub: Stripe.Subscription): {
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   current_period_end: string | null;
-  cancel_at_period_end: boolean;
   cancel_effective_at: string | null;
   subscription_started_at: string | null;
 } {
@@ -60,7 +69,6 @@ function subscriptionToIntelligenceFields(sub: Stripe.Subscription): {
     stripe_customer_id: customerId,
     stripe_subscription_id: sub.id,
     current_period_end: currentPeriodEndIso,
-    cancel_at_period_end: cancelAtPeriodEnd,
     cancel_effective_at: cancelAtPeriodEnd ? currentPeriodEndIso : null,
     subscription_started_at: start != null ? new Date(start * 1000).toISOString() : null,
   };
@@ -117,6 +125,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
+  // Decisive logging: event id + type (visible in Vercel function logs)
+  console.log("[webhook] event", event.id, event.type);
+
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     console.error("[webhook] FATAL: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing. Webhook cannot write to Supabase.");
     return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
@@ -131,11 +142,15 @@ export async function POST(req: Request) {
       const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id ?? null;
       const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id ?? null;
 
-      // Resolve Supabase user id ONLY from client_reference_id (not email, not metadata)
-      const userId = session.client_reference_id?.trim() || null;
+      // Resolve Supabase user id: metadata.supabase_user_id (preferred) | metadata.user_id | client_reference_id
+      const userId =
+        session.metadata?.supabase_user_id?.trim() ||
+        session.metadata?.user_id?.trim() ||
+        session.client_reference_id?.trim() ||
+        null;
       if (!userId) {
-        console.warn("[webhook] checkout.session.completed: no client_reference_id, skipping profile update. session_id=", session.id);
-        return NextResponse.json({ ok: true });
+        console.error("[webhook] checkout.session.completed: no user id (metadata.supabase_user_id, metadata.user_id, or client_reference_id). session_id=", session.id);
+        return NextResponse.json({ error: "Cannot resolve user" }, { status: 500 });
       }
       if (!subscriptionId) {
         console.warn("[webhook] checkout.session.completed: no subscription id, session_id=", session.id);
@@ -147,34 +162,29 @@ export async function POST(req: Request) {
       const intelligence = subscriptionToIntelligenceFields(subscription);
       const tier = session.metadata?.tier?.trim() || tierFromSubscription(subscription);
 
-      console.log("[webhook]", JSON.stringify({
-        event: eventType,
-        stripe_customer_id: customerId,
-        stripe_subscription_id: subscriptionId,
-        status: mapped.subscription_status,
-        trial_end: subscription.trial_end ?? null,
-        supabase_user_id: userId,
-      }));
+      const updatePayload = {
+        subscription_status: mapped.subscription_status,
+        subscription_tier: tier,
+        trial_ends_at: mapped.trial_ends_at,
+        stripe_customer_id: intelligence.stripe_customer_id,
+        stripe_subscription_id: intelligence.stripe_subscription_id,
+        current_period_end: intelligence.current_period_end,
+        cancel_effective_at: intelligence.cancel_effective_at,
+        subscription_started_at: intelligence.subscription_started_at,
+      };
+      console.log("[webhook] resolved", { event_id: event.id, stripe_customer_id: customerId, supabase_user_id: userId, update_payload: updatePayload });
 
       const { error } = await supabaseAdmin
         .from("profiles")
-        .update({
-          subscription_status: mapped.subscription_status,
-          subscription_tier: tier,
-          trial_ends_at: mapped.trial_ends_at,
-          stripe_customer_id: intelligence.stripe_customer_id,
-          stripe_subscription_id: intelligence.stripe_subscription_id,
-          current_period_end: intelligence.current_period_end,
-          cancel_at_period_end: intelligence.cancel_at_period_end,
-          cancel_effective_at: intelligence.cancel_effective_at,
-          subscription_started_at: intelligence.subscription_started_at,
-        })
-        .eq("id", userId);
+        .upsert({ id: userId, ...updatePayload }, { onConflict: "id" })
+        .select()
+        .single();
 
       if (error) {
-        console.error("[webhook] checkout.session.completed profile update failed", error);
-        return NextResponse.json({ error: "Profile update failed" }, { status: 500 });
+        console.error("[webhook] profiles upsert error", { eventId: event.id, userId, error });
+        return NextResponse.json({ error: "Profile update failed", details: error.message }, { status: 500 });
       }
+      console.log("[webhook] profiles upsert ok", { eventId: event.id, userId });
       return NextResponse.json({ ok: true });
     }
 
@@ -186,57 +196,54 @@ export async function POST(req: Request) {
       const sub = event.data.object as Stripe.Subscription;
       const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id ?? null;
 
-      let userId: string | null = sub.metadata?.user_id?.trim() ?? null;
+      let userId: string | null =
+        sub.metadata?.supabase_user_id?.trim() ||
+        sub.metadata?.user_id?.trim() ||
+        null;
       if (!userId && customerId) {
         userId = await getProfileIdByStripeCustomerId(supabaseAdmin, customerId);
       }
       if (!userId) {
-        console.warn("[webhook] subscription event: no user_id (metadata or stripe_customer_id lookup), subscription_id=", sub.id);
-        return NextResponse.json({ ok: true });
+        console.error("[webhook] subscription event: no user id (metadata.supabase_user_id, metadata.user_id, or stripe_customer_id lookup). subscription_id=", sub.id);
+        return NextResponse.json({ error: "Cannot resolve user" }, { status: 500 });
       }
 
       const mapped = mapStripeToStatus(sub);
       const intelligence = subscriptionToIntelligenceFields(sub);
       const tier = tierFromSubscription(sub);
 
-      console.log("[webhook]", JSON.stringify({
-        event: eventType,
-        stripe_customer_id: customerId,
-        stripe_subscription_id: sub.id,
-        status: mapped.subscription_status,
-        trial_end: sub.trial_end ?? null,
-        supabase_user_id: userId,
-      }));
+      const updatePayload = {
+        subscription_status: mapped.subscription_status,
+        subscription_tier: tier,
+        trial_ends_at: mapped.trial_ends_at,
+        stripe_customer_id: intelligence.stripe_customer_id,
+        stripe_subscription_id: intelligence.stripe_subscription_id,
+        current_period_end: intelligence.current_period_end,
+        cancel_effective_at: intelligence.cancel_effective_at,
+        subscription_started_at: intelligence.subscription_started_at,
+      };
+      console.log("[webhook] resolved", { event_id: event.id, stripe_customer_id: customerId, supabase_user_id: userId, update_payload: updatePayload });
 
       const { error } = await supabaseAdmin
         .from("profiles")
-        .update({
-          subscription_status: mapped.subscription_status,
-          subscription_tier: tier,
-          trial_ends_at: mapped.trial_ends_at,
-          stripe_customer_id: intelligence.stripe_customer_id,
-          stripe_subscription_id: intelligence.stripe_subscription_id,
-          current_period_end: intelligence.current_period_end,
-          cancel_at_period_end: intelligence.cancel_at_period_end,
-          cancel_effective_at: intelligence.cancel_effective_at,
-          subscription_started_at: intelligence.subscription_started_at,
-        })
+        .update(updatePayload)
         .eq("id", userId);
 
       if (error) {
-        console.error("[webhook] subscription event profile update failed", error);
+        console.error("[webhook] subscription event Supabase update error (do not swallow)", error);
         return NextResponse.json({ error: "Profile update failed" }, { status: 500 });
       }
       return NextResponse.json({ ok: true });
     }
 
-    if (event.type === "invoice.paid") {
+    // Handle both invoice.paid (out-of-band) and invoice.payment_succeeded (Stripe's primary event)
+    if (event.type === "invoice.paid" || event.type === "invoice.payment_succeeded") {
       const invoice = event.data.object as Stripe.Invoice;
       const invoiceId = invoice.id;
       const amountPaidCents = invoice.amount_paid ?? 0;
 
       if (amountPaidCents <= 0) {
-        console.log("[webhook] invoice.paid: skipped (0 or missing amount), invoice", invoiceId);
+        console.log("[webhook]", event.type, "skipped (0 or missing amount), invoice", invoiceId);
         return NextResponse.json({ ok: true });
       }
 
@@ -244,25 +251,27 @@ export async function POST(req: Request) {
       let userId: string | null = stripeCustomerId
         ? await getProfileIdByStripeCustomerId(supabaseAdmin, stripeCustomerId)
         : null;
-      if (!userId) userId = invoice.metadata?.user_id ?? null;
+      if (!userId) userId = invoice.metadata?.supabase_user_id?.trim() || invoice.metadata?.user_id?.trim() || null;
       const invoiceSub = (invoice as { subscription?: string | { id?: string } }).subscription;
       if (!userId && invoiceSub) {
         const subId = typeof invoiceSub === "string" ? invoiceSub : invoiceSub?.id;
         if (subId) {
           try {
             const sub = await getStripe().subscriptions.retrieve(subId);
-            userId = sub.metadata?.user_id ?? null;
+            userId = sub.metadata?.supabase_user_id?.trim() || sub.metadata?.user_id?.trim() || null;
           } catch {
             // ignore
           }
         }
       }
       if (!userId) {
+        console.log("[webhook]", event.type, "no user id for invoice", invoiceId, "- skipping lifetime_value");
         return NextResponse.json({ ok: true });
       }
 
       if (stripeCustomerId) {
-        await supabaseAdmin.from("profiles").update({ stripe_customer_id: stripeCustomerId }).eq("id", userId);
+        const { error: custErr } = await supabaseAdmin.from("profiles").update({ stripe_customer_id: stripeCustomerId }).eq("id", userId);
+        if (custErr) console.error("[webhook]", event.type, "stripe_customer_id update failed", custErr);
       }
 
       const amountPounds = amountPaidCents / 100;
@@ -276,11 +285,11 @@ export async function POST(req: Request) {
 
       if (insertError) {
         if (insertError.code === "23505") {
-          console.log("[webhook] invoice.paid: already processed", invoiceId, "profile", userId);
+          console.log("[webhook]", event.type, "already processed", invoiceId, "profile", userId);
           return NextResponse.json({ ok: true });
         }
-        console.error("[webhook] invoice.paid: insert failed", insertError);
-        return NextResponse.json({ ok: true });
+        console.error("[webhook]", event.type, "insert failed", insertError);
+        return NextResponse.json({ error: "Invoice insert failed" }, { status: 500 });
       }
 
       const { error: rpcError } = await supabaseAdmin.rpc("increment_profile_lifetime_value", {
@@ -289,10 +298,10 @@ export async function POST(req: Request) {
       });
 
       if (rpcError) {
-        console.error("[webhook] invoice.paid: lifetime_value increment failed", rpcError);
-      } else {
-        console.log("[webhook] invoice.paid: lifetime_value incremented by", amountPounds, "pounds, profile", userId, "invoice", invoiceId);
+        console.error("[webhook]", event.type, "lifetime_value increment failed", rpcError);
+        return NextResponse.json({ error: "Lifetime value update failed" }, { status: 500 });
       }
+      console.log("[webhook]", event.type, "lifetime_value incremented by", amountPounds, "profile", userId, "invoice", invoiceId);
       return NextResponse.json({ ok: true });
     }
 

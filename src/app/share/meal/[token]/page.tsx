@@ -16,6 +16,7 @@ type Plan = {
 async function getPlanByIdUnsafe(planId: string): Promise<Plan | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  console.log("[supabase share/meal/[token] getPlanByIdUnsafe] NEXT_PUBLIC_SUPABASE_URL:", url ?? "undefined");
   if (!url || !key) return null;
   const supabase = createClient(url, key);
   const { data, error } = await supabase
@@ -33,6 +34,7 @@ async function getProfileForShare(ptUserId: string | undefined): Promise<Profile
   if (!ptUserId) return null;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  console.log("[supabase share/meal/[token] getProfileForShare] NEXT_PUBLIC_SUPABASE_URL:", url ?? "undefined");
   if (!url || !key) return null;
   const supabase = createClient(url, key);
   const { data } = await supabase
