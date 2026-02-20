@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import SignupWizard from "@/components/signup/SignupWizard";
 
 export default function SignupPage() {
@@ -20,7 +21,9 @@ export default function SignupPage() {
             </div>
 
             <div className="flex-1 flex flex-col min-h-0">
-              <SignupWizard />
+              <Suspense fallback={<SignupWizardFallback />}>
+                <SignupWizard />
+              </Suspense>
             </div>
           </div>
 
@@ -64,6 +67,16 @@ export default function SignupPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+function SignupWizardFallback() {
+  return (
+    <div className="animate-pulse space-y-4 rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+      <div className="h-10 rounded bg-slate-200" />
+      <div className="h-10 rounded bg-slate-200" />
+      <div className="h-10 rounded bg-slate-200" />
+    </div>
   );
 }
 
