@@ -257,11 +257,14 @@ export default function BillingPage() {
   const refreshBillingStatus = async () => {
     setRefreshLoading(true);
     try {
-      await fetchProfile();
       const res = await fetch("/api/billing/sync", { method: "POST" });
       const data = await res.json();
+      if (!res.ok && data?.error) {
+        addToast(data.error, "error");
+        return;
+      }
       if (res.ok && data.synced) addToast("Billing status refreshed.", "success");
-      else if (!res.ok && data?.error) addToast(data.error, "error");
+      await fetchProfile();
     } catch {
       addToast("Refresh failed.", "error");
     } finally {
@@ -284,9 +287,16 @@ export default function BillingPage() {
 
   const isCanceled = subscription_status === "canceled";
   const isScheduled = Boolean(cancel_at_period_end) && !isCanceled;
+  /** Trial or active both count as "has subscription" for UI (Stripe trialing → profile "trial"). */
+  const isActiveOrTrial =
+    subscription_status === "active" || subscription_status === "trial";
+  const isTrialActive =
+    subscription_status === "trial" &&
+    !!trial_ends_at &&
+    new Date(trial_ends_at) > new Date();
   const canCancel =
     Boolean(stripe_subscription_id?.trim()) &&
-    (subscription_status === "active" || subscription_status === "trial") &&
+    isActiveOrTrial &&
     !isCanceled &&
     !isScheduled;
   const cancelEffectiveDate = cancel_effective_at || (isScheduled && trial_ends_at) || current_period_end;
@@ -328,9 +338,16 @@ export default function BillingPage() {
         )}
 
         {subscription_status === "trial" && trial_ends_at && (
-          <p>
-            <strong>Trial Ends:</strong> {new Date(trial_ends_at).toLocaleDateString()}
-          </p>
+          <>
+            <p>
+              <strong>Trial Ends:</strong> {new Date(trial_ends_at).toLocaleDateString()}
+            </p>
+            {isTrialActive && (
+              <p style={{ color: "#555", fontSize: 14, marginTop: 4 }}>
+                Trial active until {new Date(trial_ends_at).toLocaleDateString()}. Billing will start automatically when trial ends (unless canceled).
+              </p>
+            )}
+          </>
         )}
 
         {isScheduled && current_period_end && (
@@ -389,10 +406,12 @@ export default function BillingPage() {
               )}
             </>
           )}
-          {!stripe_subscription_id?.trim() && !isCanceled && (subscription_status === "active" || subscription_status === "trial") && (
+          {!stripe_subscription_id?.trim() && !isCanceled && isActiveOrTrial && (
             <>
-              <p style={{ color: "#666", fontSize: 14, marginBottom: 8 }}>
-                No active subscription on file. If you have a subscription, it may sync after your next payment.
+              <p style={{ color: "#555", fontSize: 14, marginBottom: 8 }}>
+                {isTrialActive
+                  ? "Trial is active. Use Refresh to sync with Stripe if needed."
+                  : "Subscription active. Use Refresh to sync with Stripe if needed."}
               </p>
               <button
                 type="button"

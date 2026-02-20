@@ -28,7 +28,7 @@ type NavItem = {
 };
 
 const NAV: NavItem[] = [
-  { label: "Home", href: "/", match: "exact" },
+  // Home hidden from sidebar (still reachable via /)
   { label: "Dashboard", href: "/pt/app", match: "exact" },
   { label: "Clients", href: "/pt/app/clients", match: "prefix" },
   { label: "Programs", href: "/templates", match: "prefix" },
