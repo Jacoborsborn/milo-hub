@@ -1,19 +1,9 @@
-import { redirect } from "next/navigation";
+import SignupPageContent from "@/components/signup/SignupPageContent";
 
 /**
- * Redirect /auth/signup?from=... to /signup?from=... so PT Hub (and other) links work.
+ * Same content as /signup. No redirect on load — safe for iOS and in-app browsers.
+ * Query params (e.g. from=pt-hub-ad) are read by SignupWizard from the URL.
  */
-export default async function AuthSignupRedirect({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const params = await searchParams;
-  const qs = new URLSearchParams();
-  Object.entries(params).forEach(([k, v]) => {
-    if (v !== undefined && v !== "")
-      qs.set(k, Array.isArray(v) ? v[0]! : v);
-  });
-  const query = qs.toString();
-  redirect(query ? `/signup?${query}` : "/signup");
+export default function AuthSignupPage() {
+  return <SignupPageContent />;
 }

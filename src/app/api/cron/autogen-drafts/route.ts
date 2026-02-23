@@ -3,26 +3,24 @@ import { NextResponse } from "next/server";
 /**
  * Cron endpoint: call once daily to run pt-autogen-drafts.
  * Secure with CRON_SECRET or AUTOGEN_SECRET in env.
- * Example: curl -X POST -H "Authorization: Bearer YOUR_SECRET" https://your-app/api/cron/autogen-drafts
+ *
+ * Vercel Cron (vercel.json) calls this at 06:00 UTC and sends Authorization: Bearer <CRON_SECRET>.
+ * Also accepts body { "secret": "..." } for manual calls.
  */
 export async function POST(req: Request) {
-  console.log("ENV CRON_SECRET:", process.env.CRON_SECRET);
-  console.log("ENV AUTOGEN_SECRET:", process.env.AUTOGEN_SECRET);
   const authHeader = req.headers.get("Authorization");
   const secret =
     authHeader?.replace("Bearer ", "").trim() ||
     (await req.json().catch(() => ({}))).secret;
   const expected = process.env.CRON_SECRET || process.env.AUTOGEN_SECRET;
-  // Temporary local debugging — remove after fixing 401
-  console.log("Incoming cron header:", authHeader);
-  console.log("Expected secret:", expected ? "[SET]" : "[MISSING]");
   if (!expected || secret !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  console.log("Autogen cron invoked");
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  console.log("[supabase api/cron/autogen-drafts] NEXT_PUBLIC_SUPABASE_URL:", supabaseUrl ?? "undefined");
   if (!supabaseUrl || !anonKey) {
     return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
   }

@@ -13,7 +13,10 @@ function getServiceClient() {
 function verifyToken(token: string | null): { planId: string } | NextResponse {
   const secret = process.env.PLAN_SHARE_SECRET;
   if (!secret) {
-    return NextResponse.json({ error: "Share not configured" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Share not configured. Set PLAN_SHARE_SECRET in your environment (e.g. Vercel)." },
+      { status: 500 }
+    );
   }
   if (!token) {
     return NextResponse.json({ error: "Missing token" }, { status: 400 });
@@ -67,7 +70,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const secret = process.env.PLAN_SHARE_SECRET;
   if (!secret) {
-    return NextResponse.json({ error: "Share not configured" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Share not configured. Set PLAN_SHARE_SECRET in your environment (e.g. Vercel)." },
+      { status: 500 }
+    );
   }
 
   let body: { token?: string; week_number?: number; day_index?: number; completed?: boolean };

@@ -73,7 +73,7 @@ export async function POST(req: Request) {
   const trialOk = isTrialActive(profile.trial_ends_at ?? null);
   const hasAccess =
     status === "active" ||
-    status === "trialing" ||
+    status === "trial" ||
     status === "past_due" ||
     trialOk;
 

@@ -12,7 +12,10 @@ export async function GET(
     const secret = process.env.PLAN_SHARE_SECRET;
     if (!secret) {
       console.error("[share] PLAN_SHARE_SECRET is not set");
-      return NextResponse.json({ error: "Share not configured" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Share not configured. Set PLAN_SHARE_SECRET in your environment (e.g. Vercel)." },
+        { status: 500 }
+      );
     }
 
     const supabase = await supabaseServer();

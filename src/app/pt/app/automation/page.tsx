@@ -10,6 +10,11 @@ import {
   updateProgramAssignment,
   deleteProgramAssignment,
 } from "@/lib/services/program-assignments";
+import {
+  addToAutomationQueue,
+  getAutomationQueue,
+  removeFromAutomationQueue,
+} from "@/lib/offline/automationQueue";
 
 const DAYS = [
   { value: 0, label: "Sunday" },
@@ -168,6 +173,37 @@ export default function AutomationPage() {
     loadAssignments();
   }, [loadAssignments]);
 
+  // Flush offline automation queue on load and when coming back online
+  const flushAutomationQueue = useCallback(async () => {
+    if (!navigator.onLine) return;
+    try {
+      const items = await getAutomationQueue();
+      for (const item of items) {
+        try {
+          await createAutomationAssignment(item.payload);
+          await removeFromAutomationQueue(item.id);
+        } catch (e) {
+          addToast(
+            e instanceof Error ? e.message : "Failed to save queued automation.",
+            "error"
+          );
+        }
+      }
+      if (items.length > 0) {
+        loadAssignments();
+      }
+    } catch {
+      // IndexedDB not available or get failed
+    }
+  }, [loadAssignments]);
+
+  useEffect(() => {
+    flushAutomationQueue();
+    const handleOnline = () => flushAutomationQueue();
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [flushAutomationQueue]);
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
       <header className="mb-8">
@@ -257,6 +293,9 @@ export default function AutomationPage() {
               setTab("manage");
             }}
             onError={(msg) => addToast(msg, "error")}
+            onOfflineQueued={() =>
+              addToast("You're offline — this will be saved when you reconnect.", "success")
+            }
           />
           )
         )}
@@ -298,10 +337,12 @@ function CreateAutomationForm({
   context,
   onScheduled,
   onError,
+  onOfflineQueued,
 }: {
   context: { clients: { id: string; name: string }[]; workoutTemplates: { id: string; name: string }[]; mealTemplates: { id: string; name: string }[] } | null;
   onScheduled: (clientName: string) => void;
   onError: (message: string) => void;
+  onOfflineQueued?: () => void;
 }) {
   const [clientId, setClientId] = useState("");
   const [autoMealsEnabled, setAutoMealsEnabled] = useState(true);
@@ -318,14 +359,21 @@ function CreateAutomationForm({
     }
     setSubmitting(true);
     try {
-      await createAutomationAssignment({
+      const payload = {
         client_id: clientId,
         workout_template_id: autoWorkoutsEnabled ? (workoutTemplateId || null) : null,
         meal_template_id: autoMealsEnabled ? (mealTemplateId || null) : null,
         generate_on_dow: generateOnDow,
         auto_meals_enabled: autoMealsEnabled,
         auto_workouts_enabled: autoWorkoutsEnabled,
-      });
+      };
+      if (!navigator.onLine) {
+        await addToAutomationQueue(payload);
+        onOfflineQueued?.();
+        setSubmitting(false);
+        return;
+      }
+      await createAutomationAssignment(payload);
       const clientName = context?.clients.find((c) => c.id === clientId)?.name ?? "Client";
       onScheduled(clientName);
     } catch (e) {

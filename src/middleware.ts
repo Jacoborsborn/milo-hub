@@ -46,14 +46,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Let /pt/auth/login through; the page does profile-based redirect (tutorial vs billing)
-
   return response;
 }
 
+// Only protect /pt/app. Do NOT match /pt/auth/login so that route is never touched
+// (no cookie/session access on load — safe for iOS Safari and in-app browsers).
 export const config = {
-  matcher: [
-    "/pt/app/:path*",
-    "/pt/auth/login",
-  ],
+  matcher: ["/pt/app/:path*"],
 };

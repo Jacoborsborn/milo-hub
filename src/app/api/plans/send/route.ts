@@ -66,7 +66,10 @@ export async function POST(req: Request) {
 
     const secret = process.env.PLAN_SHARE_SECRET;
     if (!secret) {
-      return NextResponse.json({ error: "Share not configured" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Share not configured. Set PLAN_SHARE_SECRET in your environment (e.g. Vercel)." },
+        { status: 500 }
+      );
     }
 
     const exp = Math.floor(Date.now() / 1000) + DEFAULT_EXPIRY_DAYS * 24 * 60 * 60;

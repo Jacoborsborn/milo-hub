@@ -116,7 +116,7 @@ Deno.serve(async (req) => {
         windowStart.setUTCDate(windowStart.getUTCDate() - leadDays);
         const windowStartStr = toDateOnly(windowStart);
 
-        if (today < windowStartStr || today >= nextWeekStart) continue;
+        if (today < windowStartStr || today > nextWeekStart) continue;
 
         const autoWorkouts = a.auto_workouts_enabled !== false && a.workout_template_id;
         const autoMeals = a.auto_meals_enabled === true && a.meal_template_id;
