@@ -6,7 +6,7 @@
 import { Resend } from "resend";
 import { PT_HUB_DESKTOP_URL } from "@/lib/pt-hub-desktop-url";
 
-const FROM = "Milo Hub <no-reply@meetmilo.app>";
+const FROM = "Jacob at Milo Hub <hello@meetmilo.app>";
 
 function escapeHtml(input: string): string {
   return input
