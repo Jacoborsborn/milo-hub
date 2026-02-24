@@ -98,6 +98,75 @@ function mapStripeToStatus(sub: Stripe.Subscription): {
   return { subscription_status: "free", trial_ends_at: null };
 }
 
+/**
+ * Send trial-started email once per user. Idempotent via trial_started_email_sent_at.
+ * Returns error message if send failed (caller can return 500); otherwise void.
+ */
+async function sendTrialStartedEmailIfNeeded(
+  supabaseAdmin: SupabaseClient,
+  userId: string,
+  options: { sessionCustomerEmail?: string | null; stripeCustomerId?: string | null }
+): Promise<string | null> {
+  const { data: profileRow } = await supabaseAdmin
+    .from("profiles")
+    .select("trial_started_email_sent_at, email")
+    .eq("id", userId)
+    .single();
+
+  if (profileRow?.trial_started_email_sent_at) {
+    console.log("[webhook] trial email skip: already sent", { userId });
+    return null;
+  }
+
+  let to =
+    options.sessionCustomerEmail?.trim() ||
+    (profileRow as { email?: string } | null)?.email?.trim() ||
+    null;
+  if (!to && options.stripeCustomerId) {
+    try {
+      const customer = await getStripe().customers.retrieve(options.stripeCustomerId);
+      to = (customer as Stripe.Customer).email?.trim() || null;
+      if (to) console.log("[webhook] trial email: using Stripe customer email", { userId });
+    } catch (e) {
+      console.warn("[webhook] trial email: Stripe customer retrieve failed", options.stripeCustomerId, e);
+    }
+  }
+
+  if (!to) {
+    console.warn("[webhook] trial email skip: no address", {
+      userId,
+      hadSessionEmail: !!options.sessionCustomerEmail?.trim(),
+      hadProfileEmail: !!(profileRow as { email?: string } | null)?.email?.trim(),
+      hadStripeCustomerId: !!options.stripeCustomerId,
+    });
+    return null;
+  }
+
+  let desktopUrl: string | undefined;
+  try {
+    if (process.env.NEXT_PUBLIC_APP_URL)
+      desktopUrl = `${new URL(process.env.NEXT_PUBLIC_APP_URL).origin}/pt/login`;
+  } catch {
+    // use default from resend.ts
+  }
+
+  console.log("[webhook] trial email sending", { userId, to, hasDesktopUrl: !!desktopUrl });
+  const sendResult = await sendTrialStartedEmail({ to, ...(desktopUrl && { desktopUrl }) });
+  if (sendResult.error) {
+    console.error("[webhook] trial email failed", { userId, to, error: sendResult.error });
+    return sendResult.error;
+  }
+  const { error: updateErr } = await supabaseAdmin
+    .from("profiles")
+    .update({ trial_started_email_sent_at: new Date().toISOString() })
+    .eq("id", userId);
+  if (updateErr) {
+    console.error("[webhook] trial_started_email_sent_at update failed", updateErr);
+  }
+  console.log("[webhook] trial email sent", { userId, to });
+  return null;
+}
+
 /** Get subscription tier from subscription (metadata.tier or price id mapping). */
 function tierFromSubscription(sub: Stripe.Subscription): string | null {
   const fromMeta = sub.metadata?.tier?.trim();
@@ -190,34 +259,13 @@ export async function POST(req: Request) {
 
       // Trial started email: send once per user (idempotent via trial_started_email_sent_at).
       if (mapped.subscription_status === "trial") {
-        const { data: profileRow } = await supabaseAdmin
-          .from("profiles")
-          .select("trial_started_email_sent_at, email")
-          .eq("id", userId)
-          .single();
-
-        if (!profileRow?.trial_started_email_sent_at) {
-          const to =
-            (session.customer_email as string | undefined)?.trim() ||
-            (profileRow as { email?: string } | null)?.email?.trim() ||
-            null;
-          if (to) {
-            const sendResult = await sendTrialStartedEmail({ to });
-            if (sendResult.error) {
-              console.error("[webhook] trial started email failed", { userId, to, error: sendResult.error });
-              return NextResponse.json({ error: "Trial email send failed" }, { status: 500 });
-            }
-            const { error: updateErr } = await supabaseAdmin
-              .from("profiles")
-              .update({ trial_started_email_sent_at: new Date().toISOString() })
-              .eq("id", userId);
-            if (updateErr) {
-              console.error("[webhook] trial_started_email_sent_at update failed", updateErr);
-            }
-            console.log("[webhook] trial started email sent", { eventId: event.id, userId });
-          } else {
-            console.warn("[webhook] trial started but no email (customer_email or profile.email)", { userId });
-          }
+        const sessionEmail = (session.customer_email as string | undefined)?.trim() || null;
+        const err = await sendTrialStartedEmailIfNeeded(supabaseAdmin, userId, {
+          sessionCustomerEmail: sessionEmail,
+          stripeCustomerId: customerId,
+        });
+        if (err) {
+          return NextResponse.json({ error: "Trial email send failed" }, { status: 500 });
         }
       }
 
@@ -269,6 +317,21 @@ export async function POST(req: Request) {
         console.error("[webhook] subscription event Supabase update error (do not swallow)", error);
         return NextResponse.json({ error: "Profile update failed" }, { status: 500 });
       }
+
+      // Fallback: send trial-started email on subscription.created (in case checkout.session.completed had no email yet).
+      if (
+        event.type === "customer.subscription.created" &&
+        mapped.subscription_status === "trial"
+      ) {
+        const err = await sendTrialStartedEmailIfNeeded(supabaseAdmin, userId, {
+          stripeCustomerId: customerId,
+        });
+        if (err) {
+          console.error("[webhook] trial email failed on subscription.created", { userId, error: err });
+          // Don't return 500: profile is already updated; Stripe would retry the whole event.
+        }
+      }
+
       return NextResponse.json({ ok: true });
     }
 
