@@ -231,14 +231,14 @@ export default function MarketingHomePage() {
                 <li>Clean client-ready delivery</li>
               </ul>
               <p className="text-[13px] mt-4" style={{ color: "#64748b" }}>
-                3-day free trial
+                7-day free trial
               </p>
               <a
                 href="/signup"
                 className="flex h-12 w-full items-center justify-center rounded-[10px] bg-blue-600 font-semibold text-white"
                 style={{ marginTop: "24px" }}
               >
-                Start 3-day trial
+                Start 7-day trial
               </a>
             </div>
 
@@ -269,14 +269,14 @@ export default function MarketingHomePage() {
                 <li>Multi-client batch efficiency</li>
               </ul>
               <p className="text-[13px] mt-4" style={{ color: "#64748b" }}>
-                3-day free trial
+                7-day free trial
               </p>
               <a
                 href="/signup"
                 className="flex h-12 w-full items-center justify-center rounded-[10px] bg-blue-600 font-semibold text-white"
                 style={{ marginTop: "24px" }}
               >
-                Start 3-day trial
+                Start 7-day trial
               </a>
             </div>
 
@@ -296,14 +296,14 @@ export default function MarketingHomePage() {
                 <li>Priority performance</li>
               </ul>
               <p className="text-[13px] mt-4" style={{ color: "#64748b" }}>
-                3-day free trial
+                7-day free trial
               </p>
               <a
                 href="/signup"
                 className="flex h-12 w-full items-center justify-center rounded-[10px] bg-blue-600 font-semibold text-white"
                 style={{ marginTop: "24px" }}
               >
-                Start 3-day trial
+                Start 7-day trial
               </a>
             </div>
           </div>

@@ -84,7 +84,7 @@ export default function PricingCards({
                 ))}
               </ul>
 
-              <p className="mt-4 text-[13px] text-neutral-500">3-day free trial</p>
+              <p className="mt-4 text-[13px] text-neutral-500">7-day free trial</p>
 
               <button
                 type="button"

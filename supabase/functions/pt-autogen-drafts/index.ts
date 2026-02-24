@@ -47,6 +47,46 @@ async function insertAutogenDraftNotification(
   });
 }
 
+/** Call Next.js internal API to send "plan ready" email to PT (fire-and-forget). */
+async function sendPlanReadyEmailToPt(
+  supabase: ReturnType<typeof createClient>,
+  ptUserId: string,
+  clientId: string,
+  planType: "workout" | "meal",
+  planId: string,
+  appUrl: string,
+  cronSecret: string
+): Promise<void> {
+  try {
+    const [{ data: profile }, { data: client }] = await Promise.all([
+      supabase.from("profiles").select("email").eq("id", ptUserId).maybeSingle(),
+      supabase.from("clients").select("name").eq("id", clientId).maybeSingle(),
+    ]);
+    const ptEmail = (profile?.email as string)?.trim();
+    const clientName = (client?.name as string)?.trim() || "Client";
+    if (!ptEmail) return;
+    const res = await fetch(`${appUrl}/api/internal/send-plan-ready`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-internal-secret": cronSecret,
+      },
+      body: JSON.stringify({
+        ptUserId,
+        ptEmail,
+        clientName,
+        planType,
+        planId,
+      }),
+    });
+    if (!res.ok) {
+      console.error("[pt-autogen-drafts] send-plan-ready failed", res.status, await res.text());
+    }
+  } catch (e) {
+    console.error("[pt-autogen-drafts] sendPlanReadyEmailToPt", e);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
@@ -74,6 +114,7 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+    const appUrl = Deno.env.get("APP_URL") ?? "";
     const now = new Date();
     const today = toDateOnly(now);
     const todayDow = now.getUTCDay();
@@ -210,6 +251,17 @@ Deno.serve(async (req) => {
                     nextWeekNumber,
                     inserted!.id
                   );
+                  if (appUrl) {
+                    await sendPlanReadyEmailToPt(
+                      supabase,
+                      a.pt_user_id,
+                      a.client_id,
+                      "workout",
+                      inserted!.id,
+                      appUrl,
+                      autogenSecret
+                    );
+                  }
                 }
               }
             }
@@ -322,6 +374,17 @@ Deno.serve(async (req) => {
                       nextWeekNumber,
                       inserted!.id
                     );
+                    if (appUrl) {
+                      await sendPlanReadyEmailToPt(
+                        supabase,
+                        a.pt_user_id,
+                        a.client_id,
+                        "meal",
+                        inserted!.id,
+                        appUrl,
+                        autogenSecret
+                      );
+                    }
                   }
                 }
               }

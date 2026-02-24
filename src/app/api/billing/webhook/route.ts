@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { sendTrialStartedEmail } from "@/lib/email/resend";
+import { sendTrialStartedEmail, sendWelcomeToTeamEmail } from "@/lib/email/resend";
+import { emailAlreadySent, logEmailSent } from "@/lib/email/check-and-log";
 
 /**
  * Stripe webhook handler. Updates Supabase profiles from subscription/trial events.
@@ -302,6 +303,26 @@ export async function POST(req: Request) {
       if (!userId) {
         console.log("[webhook]", event.type, "no user id for invoice", invoiceId, "- skipping lifetime_value");
         return NextResponse.json({ ok: true });
+      }
+
+      // First payment (subscription just created): send welcome-to-team email once
+      const billingReason = (invoice as { billing_reason?: string }).billing_reason;
+      if (billingReason === "subscription_create") {
+        const { data: profile } = await supabaseAdmin
+          .from("profiles")
+          .select("id, email")
+          .eq("id", userId)
+          .maybeSingle();
+
+        if (profile?.email) {
+          const alreadySent = await emailAlreadySent(profile.id, "welcome_to_team");
+          if (!alreadySent) {
+            const sendResult = await sendWelcomeToTeamEmail({ to: profile.email });
+            if (!sendResult.error) {
+              await logEmailSent(profile.id, "welcome_to_team");
+            }
+          }
+        }
       }
 
       if (stripeCustomerId) {

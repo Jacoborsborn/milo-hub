@@ -582,21 +582,24 @@ function ManageAutomations({
     );
   }
 
+  const dayLabel = (dow: number) => DAYS.find((d) => d.value === dow)?.label ?? "Saturday";
+
   return (
     <div className="space-y-4">
       {assignments.map((a) => (
         <div
           key={a.id}
-          className="border border-neutral-200 rounded-lg p-4 flex flex-col gap-4 bg-neutral-50/50"
+          className="border border-neutral-200 rounded-lg bg-white p-5 flex flex-col"
         >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="grid gap-1">
-              <p className="font-medium text-neutral-900">{a.client_name}</p>
-              <p className="text-sm text-neutral-500">
-                Meals: {a.auto_meals_enabled ? a.meal_template_name : "Off"} · Workouts: {a.auto_workouts_enabled ? a.workout_template_name : "Off"} · {DAYS[a.generate_on_dow]?.label ?? "Saturday"}
+          {/* Section 1 – Header Row */}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-lg font-semibold text-neutral-900">{a.client_name}</p>
+              <p className="text-sm text-neutral-500 mt-0.5">
+                Meals: {a.auto_meals_enabled ? a.meal_template_name : "Off"} · Workouts: {a.auto_workouts_enabled ? a.workout_template_name : "Off"} · {dayLabel(a.generate_on_dow)}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 shrink-0">
               <StatusPill
                 auto_generate_enabled={a.auto_generate_enabled}
                 paused={a.paused}
@@ -604,17 +607,19 @@ function ManageAutomations({
               />
               <Link
                 href={`/pt/app/clients/${a.client_id}`}
-                className="text-sm font-medium text-neutral-600 hover:text-neutral-900"
+                className="text-sm text-neutral-500 hover:text-neutral-900"
               >
                 View Client
               </Link>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+
+          {/* Section 2 – Toggle Row */}
+          <div className="flex flex-wrap items-center gap-6 pt-4 mt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={() => handleToggleOnOff(a.id, !a.auto_generate_enabled)}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+              className={`h-10 rounded-lg px-4 text-sm font-medium ${
                 a.auto_generate_enabled
                   ? "bg-green-600 text-white hover:bg-green-700"
                   : "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
@@ -625,86 +630,94 @@ function ManageAutomations({
             <button
               type="button"
               onClick={() => handlePauseResume(a.id, !a.paused)}
-              className="rounded-lg px-3 py-1.5 text-sm font-medium bg-amber-100 text-amber-900 hover:bg-amber-200"
+              className="h-10 rounded-lg px-4 text-sm font-medium border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
             >
               {a.paused ? "Resume" : "Pause"}
             </button>
-            <label className="flex items-center gap-1.5 text-sm">
+            <label className="flex items-center gap-2 text-sm text-neutral-700 h-10 cursor-pointer">
               <input
                 type="checkbox"
                 checked={a.auto_meals_enabled}
                 onChange={(e) => handleAutoMealsChange(a.id, e.target.checked)}
-                className="rounded border-neutral-300"
+                className="rounded border-neutral-300 h-4 w-4"
               />
               <span>Meals</span>
             </label>
-            <label className="flex items-center gap-1.5 text-sm">
+            <label className="flex items-center gap-2 text-sm text-neutral-700 h-10 cursor-pointer">
               <input
                 type="checkbox"
                 checked={a.auto_workouts_enabled}
                 onChange={(e) => handleAutoWorkoutsChange(a.id, e.target.checked)}
-                className="rounded border-neutral-300"
+                className="rounded border-neutral-300 h-4 w-4"
               />
               <span>Workouts</span>
             </label>
-            <select
-              value={a.generate_on_dow}
-              onChange={(e) => handleDayChange(a.id, Number(e.target.value))}
-              className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
-            >
-              {DAYS.map((d) => (
-                <option key={d.value} value={d.value}>{d.label}</option>
-              ))}
-            </select>
-            <select
-              value={a.workout_template_id ?? ""}
-              onChange={(e) => handleTemplatesChange(a.id, e.target.value || null, a.meal_template_id)}
-              disabled={!a.auto_workouts_enabled}
-              className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 max-w-[180px] disabled:bg-neutral-100 disabled:opacity-70"
-            >
-              <option value="">No workout</option>
-              {(context?.workoutTemplates ?? []).map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
-            <select
-              value={a.meal_template_id ?? ""}
-              onChange={(e) => handleTemplatesChange(a.id, a.workout_template_id, e.target.value || null)}
-              disabled={!a.auto_meals_enabled}
-              className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 max-w-[180px] disabled:bg-neutral-100 disabled:opacity-70"
-            >
-              <option value="">No meal</option>
-              {(context?.mealTemplates ?? []).map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
-            {deleteConfirmId === a.id ? (
-              <span className="flex items-center gap-2 text-sm">
-                <span className="text-amber-700">Delete automation for {a.client_name}? This stops future drafts but will not delete existing plans.</span>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(a.id, a.client_name)}
-                  className="rounded-lg bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
-                >
-                  Yes, delete
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onDeleteConfirm(null)}
-                  className="rounded-lg border border-neutral-300 px-2 py-1 text-xs font-medium text-neutral-700"
-                >
-                  Cancel
-                </button>
-              </span>
-            ) : (
-              <button
-                type="button"
-                onClick={() => onDeleteConfirm(a.id)}
-                className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
+          </div>
+
+          {/* Section 3 – Configuration Row */}
+          <div className="flex flex-wrap items-center gap-4 pt-4 mt-4 border-t border-gray-200">
+            <div className="flex flex-wrap items-center gap-4">
+              <select
+                value={a.generate_on_dow}
+                onChange={(e) => handleDayChange(a.id, Number(e.target.value))}
+                className="h-10 rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 min-w-[120px]"
               >
-                Delete
-              </button>
-            )}
+                {DAYS.map((d) => (
+                  <option key={d.value} value={d.value}>{d.label}</option>
+                ))}
+              </select>
+              <select
+                value={a.workout_template_id ?? ""}
+                onChange={(e) => handleTemplatesChange(a.id, e.target.value || null, a.meal_template_id)}
+                disabled={!a.auto_workouts_enabled}
+                className="h-10 rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 min-w-[140px] disabled:bg-neutral-50 disabled:text-neutral-400 disabled:opacity-70"
+              >
+                <option value="">Workout template</option>
+                {(context?.workoutTemplates ?? []).map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+              <select
+                value={a.meal_template_id ?? ""}
+                onChange={(e) => handleTemplatesChange(a.id, a.workout_template_id, e.target.value || null)}
+                disabled={!a.auto_meals_enabled}
+                className="h-10 rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 min-w-[140px] disabled:bg-neutral-50 disabled:text-neutral-400 disabled:opacity-70"
+              >
+                <option value="">Meal template</option>
+                {(context?.mealTemplates ?? []).map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="ml-auto flex items-center gap-2">
+              {deleteConfirmId === a.id ? (
+                <>
+                  <span className="text-sm text-neutral-600">Delete this automation?</span>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(a.id, a.client_name)}
+                    className="h-10 rounded-lg border border-red-300 px-3 text-sm font-medium text-red-700 hover:bg-red-50"
+                  >
+                    Yes, delete
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDeleteConfirm(null)}
+                    className="h-10 rounded-lg border border-neutral-200 px-3 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onDeleteConfirm(a.id)}
+                  className="h-10 rounded-lg border border-red-200 px-3 text-sm font-medium text-red-600 hover:bg-red-50"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
           </div>
         </div>
       ))}

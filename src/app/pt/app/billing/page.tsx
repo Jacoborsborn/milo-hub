@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import PricingCards from "@/components/billing/PricingCards";
 
 type Profile = {
@@ -80,6 +81,7 @@ const TIERS: Array<{
 let toastId = 0;
 
 export default function BillingPage() {
+  const searchParams = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkoutLoadingTier, setCheckoutLoadingTier] = useState<Tier | null>(null);
@@ -93,6 +95,7 @@ export default function BillingPage() {
   const [cancelDetails, setCancelDetails] = useState<string>("");
   const [cancelFeedbackId, setCancelFeedbackId] = useState<string | null>(null);
   const [cancelStepLoading, setCancelStepLoading] = useState(false);
+  const loyaltyAppliedRef = useRef(false);
 
   const addToast = useCallback((message: string, type: "success" | "error") => {
     const id = ++toastId;
@@ -113,6 +116,25 @@ export default function BillingPage() {
       .then(() => setLoading(false))
       .catch(() => setLoading(false));
   }, [fetchProfile]);
+
+  useEffect(() => {
+    if (loyaltyAppliedRef.current) return;
+    if (searchParams.get("loyalty") !== "1") return;
+    loyaltyAppliedRef.current = true;
+    fetch("/api/billing/apply-loyalty-reward", { method: "POST" })
+      .then((res) => {
+        if (res.ok) {
+          addToast("30% discount applied to your next month 🎉", "success");
+          fetchProfile();
+        }
+      })
+      .finally(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("loyalty");
+        const newUrl = url.pathname + (url.search || "") + url.hash;
+        window.history.replaceState(null, "", newUrl);
+      });
+  }, [searchParams, addToast, fetchProfile]);
 
   const startCheckout = async (tier: Tier) => {
     try {
@@ -575,7 +597,7 @@ export default function BillingPage() {
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-neutral-900">Plans</h2>
         <p className="mt-1.5 text-sm text-neutral-500">
-          3-day free trial included. Cancel anytime.
+          7-day free trial included. Cancel anytime.
         </p>
         <div className="mt-6">
           <PricingCards

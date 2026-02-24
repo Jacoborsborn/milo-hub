@@ -139,7 +139,7 @@ export default function SignupWizard() {
   }
 
   async function startTrialCheckout() {
-    // Wire: Stripe Checkout Session (trial_period_days: 3) via /api/stripe/checkout
+    // Wire: Stripe Checkout Session (trial_period_days: 7) via /api/stripe/checkout
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -255,7 +255,7 @@ export default function SignupWizard() {
             disabled={loading || !agreedToLegal || !verified}
             className="h-11 flex-1 rounded-[10px] bg-blue-600 px-5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(0,0,0,0.08)] hover:bg-blue-700 disabled:opacity-60"
           >
-            {loading ? "Starting checkout..." : "Start 3-day trial"}
+            {loading ? "Starting checkout..." : "Start 7-day trial"}
           </button>
         )}
       </div>
@@ -481,7 +481,7 @@ function StepTwo({
         <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
           <div className="text-xs font-semibold tracking-[0.08em] text-slate-500">TRIAL</div>
           <div className="mt-1 text-sm text-slate-700">
-            Includes <span className="font-semibold text-slate-900">3-day free trial</span>. Cancel anytime.
+            Includes <span className="font-semibold text-slate-900">7-day free trial</span>. Cancel anytime.
           </div>
         </div>
       </div>

@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       payment_method_types: ["card"],
       line_items: [{ price: PRICE_MAP[tier], quantity: 1 }],
       subscription_data: {
-        trial_period_days: 3,
+        trial_period_days: 7,
         metadata: { supabase_user_id: userData.user.id, user_id: userData.user.id, tier },
       },
       metadata: { supabase_user_id: userData.user.id, user_id: userData.user.id, tier },
