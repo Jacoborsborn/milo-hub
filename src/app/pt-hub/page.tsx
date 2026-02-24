@@ -176,6 +176,9 @@ export default function PtHubLandingPage() {
             <p className="mt-4 text-xs text-neutral-400">
               Sign up on your phone → we email you a link → open on laptop to build plans.
             </p>
+            <p className="mt-2 text-xs text-neutral-400">
+              Can&apos;t find it? Check your spam and add hello@meetmilo.app to your contacts.
+            </p>
 
             {/* Benefits */}
             <div className="mt-7 grid gap-3">
@@ -234,6 +237,9 @@ export default function PtHubLandingPage() {
           <div className="mt-2 text-center text-xs text-neutral-400">
             Sign up on phone → open on laptop via email link
           </div>
+          <p className="mt-2 text-center text-xs text-neutral-400">
+            Can&apos;t find it? Check your spam and add hello@meetmilo.app to your contacts.
+          </p>
         </div>
       </section>
 
@@ -355,6 +361,9 @@ export default function PtHubLandingPage() {
           <div className="mt-3 text-xs text-neutral-400">
             Sign up on phone → we email you a link → open on laptop to build plans
           </div>
+          <p className="mt-2 text-xs text-neutral-400">
+            Can&apos;t find it? Check your spam and add hello@meetmilo.app to your contacts.
+          </p>
         </div>
       </section>
 

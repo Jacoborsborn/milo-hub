@@ -83,6 +83,9 @@ export default function PtHubSuccessClient() {
           <p className="text-xs text-neutral-400">
             Can&apos;t find the email? Check your spam folder.
           </p>
+          <p className="mt-2 text-xs text-neutral-400">
+            Can&apos;t find it? Check your spam and add hello@meetmilo.app to your contacts.
+          </p>
         </div>
 
         <p className="mt-6 text-center text-xs text-neutral-400">
