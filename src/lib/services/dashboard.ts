@@ -2,6 +2,7 @@
 
 import { listClients } from "./clients";
 import { listPlansForPtUser, listAutoDraftPlansForDashboard } from "./plans";
+import { supabaseServer } from "../supabase/server";
 import type { Client } from "@/types/database";
 import type { Plan } from "@/types/database";
 
@@ -15,6 +16,8 @@ export type DashboardClient = {
   overdueByDays: number | null;
   latestPlanDate: string | null;
   latestPlanId: string | null;
+  completedDays: number | null;
+  totalDays: number | null;
 };
 
 export type RecentActivityItem = {
@@ -107,6 +110,30 @@ function isInMonth(isoDate: string, ref: Date): boolean {
 export async function getPtDashboardSummary(): Promise<PtDashboardSummary> {
   const [clients, plans] = await Promise.all([listClients(), listPlansForPtUser()]);
 
+  // Fetch completion counts for latest plans
+  const latestPlanIds = plans
+    .filter((p, i, arr) => arr.findIndex((x) => x.client_id === p.client_id) === i)
+    .map((p) => p.id);
+
+  const supabase = await supabaseServer();
+  const { data: completionRows } =
+    latestPlanIds.length > 0
+      ? await supabase.from("plan_completions").select("plan_id").in("plan_id", latestPlanIds)
+      : { data: [] };
+
+  const completionCountByPlanId = new Map<string, number>();
+  for (const row of completionRows ?? []) {
+    const r = row as { plan_id: string };
+    completionCountByPlanId.set(r.plan_id, (completionCountByPlanId.get(r.plan_id) ?? 0) + 1);
+  }
+
+  // Count total days per plan from content_json.weeks
+  function countTotalDays(plan: Plan): number {
+    const weeks = (plan.content_json as any)?.weeks as { days?: unknown[] }[] | undefined;
+    if (!weeks) return 0;
+    return weeks.reduce((sum, w) => sum + (w.days?.length ?? 0), 0);
+  }
+
   const now = new Date();
   const plansThisWeek = plans.filter((p) => isInWeek(p.created_at, now)).length;
   const plansThisMonth = plans.filter((p) => isInMonth(p.created_at, now)).length;
@@ -130,6 +157,8 @@ export async function getPtDashboardSummary(): Promise<PtDashboardSummary> {
       overdueByDays,
       latestPlanDate: latest ? latest.created_at : null,
       latestPlanId: latest?.id ?? null,
+      completedDays: completionCountByPlanId.get(latest?.id ?? "") ?? null,
+      totalDays: latest ? countTotalDays(latest) : null,
     };
   });
 

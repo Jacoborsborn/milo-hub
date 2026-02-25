@@ -15,6 +15,8 @@ export type PriorityCardItem = {
   lastUpdatedLabel: string;
   primaryCtaLabel: string;
   primaryCtaHref: string;
+  completedDays?: number | null;
+  totalDays?: number | null;
 };
 
 type TabKey = "all" | PriorityCardStatus;
@@ -106,6 +108,32 @@ function PriorityCard({ item }: { item: PriorityCardItem }) {
         <p className="text-sm text-gray-500 truncate">{item.subtitle}</p>
       ) : (
         <p className="text-sm text-gray-500">&nbsp;</p>
+      )}
+      {item.totalDays != null && item.totalDays > 0 && (
+        <div className="mt-3 mb-1">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs text-neutral-500">
+              {item.completedDays ?? 0}/{item.totalDays} days completed
+            </span>
+            {(item.completedDays ?? 0) >= item.totalDays && (
+              <span className="text-xs font-semibold text-green-600">All done 🎉</span>
+            )}
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-neutral-200 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                (item.completedDays ?? 0) >= item.totalDays
+                  ? "bg-green-500"
+                  : (item.completedDays ?? 0) > 0
+                    ? "bg-indigo-500"
+                    : "bg-neutral-300"
+              }`}
+              style={{
+                width: `${item.totalDays > 0 ? Math.round(((item.completedDays ?? 0) / item.totalDays) * 100) : 0}%`,
+              }}
+            />
+          </div>
+        </div>
       )}
       <div className="flex items-center justify-between gap-3 mt-auto">
         <p className="text-xs text-gray-400 truncate min-w-0">{item.lastUpdatedLabel}</p>

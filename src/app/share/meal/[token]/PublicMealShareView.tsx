@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect } from "react";
 import Link from "next/link";
 import MealPlanRenderer from "@/components/MealPlanRenderer";
@@ -17,23 +16,24 @@ export default function PublicMealShareView({
   weekCommencing,
   coachDisplayName,
   token,
+  clientName,
 }: {
   plan: Plan;
   createdDate: string;
   weekCommencing: string;
   coachDisplayName: string;
   token: string;
+  clientName: string | null;
 }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get("print") === "1") {
-      window.print();
-    }
+    if (params.get("print") === "1") window.print();
   }, []);
 
   const content = plan.content_json as {
     dailyCaloriesTarget?: number;
+    dailyProteinTarget?: number;
     days?: {
       totalCalories?: number;
       meals?: {
@@ -41,84 +41,127 @@ export default function PublicMealShareView({
         ingredientsPerPortion?: { foodId?: string }[];
       }[];
     }[];
-    meta?: { mealInputs?: { budgetTier?: string } };
+    grocery?: {
+      sections?: {
+        items?: { estimatedPriceGbp?: number }[];
+      }[];
+      estimatedTotalGbp?: number;
+    };
+    meta?: {
+      mealInputs?: { budgetTier?: string };
+      coachMessage?: string;
+    };
   };
+
+  const firstName = clientName?.split(" ")[0] ?? null;
+
   const dailyCaloriesTarget =
     typeof content.dailyCaloriesTarget === "number" && content.dailyCaloriesTarget > 0
       ? content.dailyCaloriesTarget
       : null;
+
   const days = content.days ?? [];
+
   const dayTotals = days.map((d) => ({
     kcal: d.totalCalories ?? (d.meals ?? []).reduce((s, m) => s + (m.macrosPerPortion?.calories ?? 0), 0),
   }));
+
   const alignmentScore = (actual: number, target: number) =>
     target <= 0 ? null : Math.max(0, Math.min(100, 100 - (Math.abs(actual - target) / target) * 100));
+
   const calorieAlignments =
     dailyCaloriesTarget != null && dayTotals.length > 0
       ? dayTotals
           .map((d) => (d.kcal > 0 ? alignmentScore(d.kcal, dailyCaloriesTarget) : null))
           .filter((x): x is number => x != null)
       : [];
+
   const calorieAlignmentPercent =
     calorieAlignments.length > 0
       ? Math.round(calorieAlignments.reduce((a, b) => a + b, 0) / calorieAlignments.length)
       : null;
+
   const budgetTier = content.meta?.mealInputs?.budgetTier;
   const budgetFitVisible = !!budgetTier && budgetTier !== "—";
 
-  const sharedIngredientCount = (() => {
-    const mealToFoodIds = new Map<string, Set<string>>();
-    let mealKey = 0;
-    for (const day of days) {
-      for (const meal of day.meals ?? []) {
-        const ids = new Set<string>();
-        for (const ing of meal.ingredientsPerPortion ?? []) {
-          const id = (ing.foodId ?? "").trim();
-          if (id) ids.add(id);
-        }
-        if (ids.size > 0) mealToFoodIds.set(String(mealKey++), ids);
+  // Estimated total from grocery data
+  const estimatedTotal: number | null = (() => {
+    if (typeof content.grocery?.estimatedTotalGbp === "number") {
+      return content.grocery.estimatedTotalGbp;
+    }
+    const sections = content.grocery?.sections ?? [];
+    if (sections.length === 0) return null;
+    let total = 0;
+    for (const section of sections) {
+      for (const item of section.items ?? []) {
+        if (typeof item.estimatedPriceGbp === "number") total += item.estimatedPriceGbp;
       }
     }
-    const foodIdToMealCount = new Map<string, number>();
-    for (const ids of mealToFoodIds.values()) {
-      for (const id of ids) foodIdToMealCount.set(id, (foodIdToMealCount.get(id) ?? 0) + 1);
-    }
-    let shared = 0;
-    for (const count of foodIdToMealCount.values()) if (count > 1) shared++;
-    return shared;
+    return total > 0 ? total : null;
   })();
-  const systemStatusMacroAligned = calorieAlignmentPercent != null && calorieAlignmentPercent >= 90;
-  const systemStatusBudgetOptimised = budgetFitVisible;
-  const systemStatusOverlapMinimised = sharedIngredientCount > 2;
-  const hasAnySystemStatus = systemStatusMacroAligned || systemStatusBudgetOptimised || systemStatusOverlapMinimised;
+
+  const coachMessage = content.meta?.coachMessage;
+  const hasCoachMessage = typeof coachMessage === "string" && coachMessage.trim().length > 0;
+
+  // Human-readable stat pills
+  const statPills: { label: string; icon: string }[] = [];
+  if (calorieAlignmentPercent != null && calorieAlignmentPercent >= 90) {
+    statPills.push({ icon: "🎯", label: "Hit your calorie target" });
+  }
+  if (budgetFitVisible) {
+    statPills.push({ icon: "💰", label: "Built for your budget" });
+  }
+  if (dailyCaloriesTarget != null) {
+    statPills.push({ icon: "💪", label: `${dailyCaloriesTarget} kcal daily target` });
+  }
 
   return (
-    <div className="min-h-screen bg-white print:bg-white">
-      <header className="sticky top-0 z-10 bg-white border-b border-neutral-200 print:border-neutral-300 safe-area-inset-top">
+    <div className="min-h-screen bg-neutral-50 print:bg-white">
+      <header className="sticky top-0 z-10 bg-white border-b border-neutral-200 shadow-sm safe-area-inset-top print:border-neutral-300">
         <div className="max-w-xl mx-auto px-4 py-4">
-          <h1 className="text-xl font-semibold text-neutral-900">Your Meal Plan</h1>
-          <p className="text-sm text-neutral-500 mt-0.5">Week commencing: {weekCommencing}</p>
-          <p className="text-sm text-neutral-500">Prepared by: {coachDisplayName}</p>
-          {(calorieAlignmentPercent != null || budgetFitVisible) && (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-600 mt-2">
-              {calorieAlignmentPercent != null && (
-                <span title="Alignment compares planned totals vs targets.">
-                  Calorie alignment: {calorieAlignmentPercent}%
-                </span>
-              )}
-              {budgetFitVisible && <span>Budget fit: On target</span>}
+
+          {/* Personalised greeting */}
+          {firstName ? (
+            <h1 className="text-xl font-bold text-neutral-900">Hey {firstName} 👋</h1>
+          ) : (
+            <h1 className="text-xl font-bold text-neutral-900">Your Meal Plan</h1>
+          )}
+
+          <p className="text-sm text-neutral-500 mt-0.5">
+            Week commencing {weekCommencing}
+          </p>
+          <p className="text-xs text-neutral-400 mt-0.5">
+            Prepared by {coachDisplayName}
+          </p>
+
+          {/* Estimated total — hero number */}
+          {estimatedTotal != null && (
+            <div className="mt-3 inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2">
+              <span className="text-lg">🛒</span>
+              <div>
+                <p className="text-xs text-green-700 font-medium">Estimated weekly shop</p>
+                <p className="text-lg font-bold text-green-800">~£{estimatedTotal.toFixed(2)}</p>
+              </div>
             </div>
           )}
-          {hasAnySystemStatus && (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-600 mt-2 pt-2 border-t border-neutral-100">
-              <span className="font-medium text-neutral-500">System status:</span>
-              {systemStatusMacroAligned && <span>✔ Macro aligned</span>}
-              {systemStatusBudgetOptimised && <span>✔ Budget optimised</span>}
-              {systemStatusOverlapMinimised && <span>✔ Ingredient overlap minimised</span>}
+
+          {/* Human stat pills */}
+          {statPills.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {statPills.map((pill) => (
+                <span
+                  key={pill.label}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium bg-neutral-100 text-neutral-700 rounded-full px-3 py-1"
+                >
+                  {pill.icon} {pill.label}
+                </span>
+              ))}
             </div>
           )}
         </div>
-        <div className="max-w-xl mx-auto px-4 py-2 border-t border-neutral-100 flex flex-wrap items-center gap-2 bg-neutral-50/80">
+
+        {/* Nav tabs */}
+        <div className="max-w-xl mx-auto px-4 py-2 border-t border-neutral-100 flex items-center gap-2 bg-neutral-50/80">
           <Link
             href={`/share/meal/${token}`}
             className="px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-neutral-200 text-neutral-800"
@@ -127,27 +170,35 @@ export default function PublicMealShareView({
           </Link>
           <Link
             href={`/share/meal/${token}/shopping`}
-            className="px-3 py-1.5 rounded-md text-sm font-medium text-neutral-600 hover:text-neutral-900"
+            className="px-3 py-1.5 rounded-md text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
           >
-            Shopping
-          </Link>
-          <span className="px-3 py-1.5 rounded-md text-sm font-medium text-neutral-400">Overview</span>
-          <Link
-            href={`/share/meal/${token}#top`}
-            className="ml-auto text-sm font-medium text-neutral-600 hover:text-neutral-900"
-          >
-            ← Back
+            🛒 Shopping list
           </Link>
         </div>
       </header>
 
-      <main id="top" className="max-w-xl mx-auto px-4 py-6 pb-10 print:py-6 print:pb-6">
-        <div className="text-base" style={{ fontSize: "14px" }}>
-          <MealPlanRenderer
-            data={plan.content_json}
-            hideGrocery
-            shareToken={token}
-          />
+      <main id="top" className="max-w-xl mx-auto px-4 py-6 pb-12 print:py-6 print:pb-6">
+        <div className="flex flex-col gap-5">
+
+          {/* Coach message */}
+          {hasCoachMessage && (
+            <div className="rounded-2xl bg-indigo-50 border border-indigo-100 p-5 shadow-sm">
+              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-2">
+                Message from your coach
+              </p>
+              <p className="text-sm leading-relaxed text-neutral-800 whitespace-pre-wrap">
+                {coachMessage!.trim()}
+              </p>
+            </div>
+          )}
+
+          <div className="text-sm">
+            <MealPlanRenderer
+              data={plan.content_json}
+              hideGrocery
+              shareToken={token}
+            />
+          </div>
         </div>
       </main>
     </div>

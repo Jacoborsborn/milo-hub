@@ -144,20 +144,40 @@ Deno.serve(async (req) => {
 
         const startDate = parseDate(a.start_date);
         const todayDate = parseDate(today);
+
+        // If start_date is in the future, generate for week 1 starting at start_date
+        // If start_date is today or past, calculate which week we're in
         const diffMs = todayDate.getTime() - startDate.getTime();
         const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000));
-        const currentWeekNumber = Math.floor(diffDays / 7) + 1;
+
+        // Clamp to week 1 minimum (handles same-day or future start_date)
+        const currentWeekNumber = Math.max(1, Math.floor(diffDays / 7) + 1);
         const nextWeekNumber = currentWeekNumber + 1;
+
         const nextWeekStartDays = (nextWeekNumber - 1) * 7;
         const nextWeekStartDate = new Date(startDate);
         nextWeekStartDate.setUTCDate(startDate.getUTCDate() + nextWeekStartDays);
         const nextWeekStart = toDateOnly(nextWeekStartDate);
+
         const leadDays = Math.min(6, Math.max(0, a.autogen_lead_days ?? 2));
         const windowStart = new Date(nextWeekStart);
         windowStart.setUTCDate(windowStart.getUTCDate() - leadDays);
         const windowStartStr = toDateOnly(windowStart);
 
-        if (today < windowStartStr || today > nextWeekStart) continue;
+        // Also allow generating for week 1 if start_date is today or within lead window
+        const week1Start = toDateOnly(startDate);
+        const week1WindowStart = new Date(startDate);
+        week1WindowStart.setUTCDate(startDate.getUTCDate() - leadDays);
+        const week1WindowStartStr = toDateOnly(week1WindowStart);
+
+        const inNextWeekWindow = today >= windowStartStr && today <= nextWeekStart;
+        const inWeek1Window = today >= week1WindowStartStr && today <= week1Start;
+
+        if (!inNextWeekWindow && !inWeek1Window) continue;
+
+        // Use the right target week
+        const targetWeekNumber = inWeek1Window ? 1 : nextWeekNumber;
+        const targetWeekStart = inWeek1Window ? week1Start : nextWeekStart;
 
         const autoWorkouts = a.auto_workouts_enabled !== false && a.workout_template_id;
         const autoMeals = a.auto_meals_enabled === true && a.meal_template_id;
@@ -167,7 +187,7 @@ Deno.serve(async (req) => {
             .from("plans")
             .select("id, edited_at, source_hash")
             .eq("assignment_id", a.id)
-            .eq("week_number", nextWeekNumber)
+            .eq("week_number", targetWeekNumber)
             .eq("plan_type", "workout")
             .maybeSingle();
 
@@ -181,7 +201,7 @@ Deno.serve(async (req) => {
                 body: JSON.stringify({
                   autogen_secret: autogenSecret,
                   assignment_id: a.id,
-                  week_number: nextWeekNumber,
+                  week_number: targetWeekNumber,
                 }),
               });
               const gen = genRes.ok ? (await genRes.json()) as { source_hash?: string } : null;
@@ -203,7 +223,7 @@ Deno.serve(async (req) => {
               body: JSON.stringify({
                 autogen_secret: autogenSecret,
                 assignment_id: a.id,
-                week_number: nextWeekNumber,
+                week_number: targetWeekNumber,
               }),
             });
 
@@ -222,9 +242,9 @@ Deno.serve(async (req) => {
                     pt_user_id: a.pt_user_id,
                     client_id: a.client_id,
                     plan_type: "workout",
-                    content_json: { week: data.week, week_number: nextWeekNumber },
+                    content_json: { week: data.week, week_number: targetWeekNumber },
                     assignment_id: a.id,
-                    week_number: nextWeekNumber,
+                    week_number: targetWeekNumber,
                     status: "draft",
                     generated_by: "auto",
                     source_hash: data.source_hash ?? null,
@@ -248,7 +268,7 @@ Deno.serve(async (req) => {
                     a.pt_user_id,
                     a.client_id,
                     "workout",
-                    nextWeekNumber,
+                    targetWeekNumber,
                     inserted!.id
                   );
                   if (appUrl) {
@@ -273,7 +293,7 @@ Deno.serve(async (req) => {
             .from("plans")
             .select("id, edited_at")
             .eq("assignment_id", a.id)
-            .eq("week_number", nextWeekNumber)
+            .eq("week_number", targetWeekNumber)
             .eq("plan_type", "meal")
             .maybeSingle();
 
@@ -337,8 +357,8 @@ Deno.serve(async (req) => {
                     ...mealPlan,
                     grocerySections,
                     groceryTotals,
-                    meta: { coachMessage: "", week_number: nextWeekNumber },
-                    week_number: nextWeekNumber,
+                    meta: { coachMessage: "", week_number: targetWeekNumber },
+                    week_number: targetWeekNumber,
                   };
                   const { data: inserted, error: insertErr } = await supabase
                     .from("plans")
@@ -348,7 +368,7 @@ Deno.serve(async (req) => {
                       plan_type: "meal",
                       content_json: contentJson,
                       assignment_id: a.id,
-                      week_number: nextWeekNumber,
+                      week_number: targetWeekNumber,
                       status: "draft",
                       generated_by: "auto",
                       review_status: "ready",
@@ -371,7 +391,7 @@ Deno.serve(async (req) => {
                       a.pt_user_id,
                       a.client_id,
                       "meal",
-                      nextWeekNumber,
+                      targetWeekNumber,
                       inserted!.id
                     );
                     if (appUrl) {

@@ -127,6 +127,8 @@ function realToPriorityItems(clients: DashboardClient[]): PriorityCardItem[] {
       lastUpdatedLabel,
       primaryCtaLabel: cta.label,
       primaryCtaHref: cta.href,
+      completedDays: c.completedDays ?? null,
+      totalDays: c.totalDays ?? null,
     };
   });
 }

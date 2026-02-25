@@ -1,5 +1,6 @@
 // src/app/pt-hub/page.tsx
 import Link from "next/link";
+import ExpandableDashboardVideo from "./ExpandableDashboardVideo";
 
 export const metadata = {
   title: "Milo PT Hub — Stop rewriting the same plans every week",
@@ -203,14 +204,7 @@ export default function PtHubLandingPage() {
               <div className="text-sm font-semibold text-neutral-900">Your dashboard</div>
               <div className="text-xs text-neutral-400">What you'll use on laptop</div>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-neutral-100 bg-neutral-100">
-              <img
-                src="/demo/dashboarddemo.jpeg"
-                alt="Milo PT Hub dashboard"
-                className="h-auto w-full object-contain"
-                loading="eager"
-              />
-            </div>
+            <ExpandableDashboardVideo />
           </div>
         </div>
       </section>

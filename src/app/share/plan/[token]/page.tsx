@@ -8,6 +8,7 @@ type Plan = {
   id: string;
   plan_type: "meal" | "workout";
   pt_user_id?: string;
+  client_id?: string;
   content_json: Record<string, unknown>;
   created_at: string;
 };
@@ -20,11 +21,26 @@ async function getPlanByIdUnsafe(planId: string): Promise<Plan | null> {
   const supabase = createClient(url, key);
   const { data, error } = await supabase
     .from("plans")
-    .select("id, plan_type, pt_user_id, content_json, created_at")
+    .select("id, plan_type, pt_user_id, client_id, content_json, created_at")
     .eq("id", planId)
     .maybeSingle();
   if (error || !data) return null;
   return data as Plan;
+}
+
+async function getClientForShare(clientId: string | undefined): Promise<{ id: string; name: string } | null> {
+  if (!clientId) return null;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  const supabase = createClient(url, key);
+  const { data, error } = await supabase
+    .from("clients")
+    .select("id, name")
+    .eq("id", clientId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as { id: string; name: string };
 }
 
 async function getProfileForShare(ptUserId: string | undefined): Promise<{ brand_logo_url?: string | null } | null> {
@@ -71,6 +87,7 @@ export default async function SharePlanPage({
     );
   }
 
+  const clientData = await getClientForShare(plan.client_id);
   const createdDate = new Date(plan.created_at).toLocaleDateString(undefined, {
     dateStyle: "long",
   });
@@ -88,6 +105,7 @@ export default async function SharePlanPage({
         planType={plan.plan_type}
         createdDate={createdDate}
         shareToken={token}
+        clientName={clientData?.name ?? null}
       />
     </>
   );
