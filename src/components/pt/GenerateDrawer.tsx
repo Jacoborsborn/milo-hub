@@ -28,6 +28,7 @@ interface PlanJobRow {
 }
 
 const POLL_INTERVAL_MS = 3000;
+const POLL_IDLE_MS = 20000; // when no queued/running jobs, poll less often
 const TOAST_DURATION_MS = 4000;
 
 export default function GenerateDrawer({
@@ -104,11 +105,13 @@ export default function GenerateDrawer({
     }
   }, [open, fetchContext, fetchJobs]);
 
+  const hasActiveJobs = jobs.some((j) => j.status === "queued" || j.status === "running");
   useEffect(() => {
     if (!open) return;
-    const t = setInterval(fetchJobs, POLL_INTERVAL_MS);
+    const interval = hasActiveJobs ? POLL_INTERVAL_MS : POLL_IDLE_MS;
+    const t = setInterval(fetchJobs, interval);
     return () => clearInterval(t);
-  }, [open, fetchJobs]);
+  }, [open, fetchJobs, hasActiveJobs]);
 
   // Pre-fill single client when opened from client page or ?client= query
   const preferredClientId = clientIdFromPath || initialClientId;
@@ -205,7 +208,7 @@ export default function GenerateDrawer({
       setPendingSingleJobId(jobId);
       fetchJobs();
       setTab("queue");
-      fetch(`/api/jobs/${jobId}/process`, { method: "POST" });
+      fetch(`/api/jobs/${jobId}/process`, { method: "POST", credentials: "include" });
       setToast("Job queued. Check Queue for status.");
     } catch (e) {
       setToast(e instanceof Error ? e.message : "Failed");
@@ -252,7 +255,7 @@ export default function GenerateDrawer({
       fetchJobs();
       setTab("queue");
       (jobIds ?? []).forEach((jobId: string) => {
-        fetch(`/api/jobs/${jobId}/process`, { method: "POST" });
+        fetch(`/api/jobs/${jobId}/process`, { method: "POST", credentials: "include" });
       });
       setToast(`Queued ${jobIds.length} job(s). Check Queue for status.`);
     } catch (e) {
@@ -263,11 +266,23 @@ export default function GenerateDrawer({
 
   const retryJob = async (jobId: string) => {
     try {
-      const res = await fetch(`/api/jobs/${jobId}/process`, { method: "POST" });
+      const res = await fetch(`/api/jobs/${jobId}/process`, { method: "POST", credentials: "include" });
       if (!res.ok) throw new Error("Retry failed");
       fetchJobs();
     } catch (e) {
       setToast(e instanceof Error ? e.message : "Retry failed");
+    }
+  };
+
+  const cancelJob = async (jobId: string) => {
+    try {
+      const res = await fetch(`/api/jobs/${jobId}/cancel`, { method: "POST", credentials: "include" });
+      if (!res.ok) throw new Error("Cancel failed");
+      fetchJobs();
+      setToast("Job cancelled");
+      setTimeout(() => setToast(null), TOAST_DURATION_MS);
+    } catch (e) {
+      setToast(e instanceof Error ? e.message : "Cancel failed");
     }
   };
 
@@ -534,6 +549,15 @@ export default function GenerateDrawer({
                           </Link>
                         ))}
                       </div>
+                    )}
+                    {(job.status === "queued" || job.status === "running") && (
+                      <button
+                        type="button"
+                        onClick={() => cancelJob(job.id)}
+                        className="mt-2 text-xs text-red-600 underline"
+                      >
+                        Cancel
+                      </button>
                     )}
                     {job.status === "failed" && (
                       <button

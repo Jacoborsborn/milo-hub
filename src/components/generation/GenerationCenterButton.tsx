@@ -17,7 +17,7 @@ interface PlanJobRow {
   created_at: string;
 }
 
-const POLL_MS = 3000;
+const POLL_MS = 15000; // when no active jobs, poll every 15s
 const POLL_MS_ACTIVE = 2000;
 
 function statusLabel(s: JobStatus): string {
@@ -163,6 +163,21 @@ export default function GenerationCenterButton() {
                       </p>
                       {job.status === "failed" && job.error && (
                         <p className="text-sm text-red-600">{job.error}</p>
+                      )}
+                      {(job.status === "queued" || job.status === "running") && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const res = await fetch(`/api/jobs/${job.id}/cancel`, {
+                              method: "POST",
+                              credentials: "include",
+                            });
+                            if (res.ok) fetchJobs();
+                          }}
+                          className="text-sm text-red-600 hover:underline"
+                        >
+                          Cancel
+                        </button>
                       )}
                       {job.status === "succeeded" && job.result_plan_ids?.length ? (
                         <div className="flex flex-wrap gap-1">

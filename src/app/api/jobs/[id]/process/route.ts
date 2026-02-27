@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getPlanJobById, setJobStatus } from "@/lib/services/plan-jobs";
 import { getClientById } from "@/lib/services/clients";
 import { createPlan } from "@/lib/services/plans";
+import { getSubscriptionStatus } from "@/lib/services/subscription";
 import { assignMealTemplateToClient } from "@/app/templates/meals/actions";
 import { supabaseServer } from "@/lib/supabase/server";
 
@@ -130,6 +131,16 @@ export async function POST(
         if (!mealTemplateId) {
           throw new Error("No meal program assigned and none provided");
         }
+        const subscription = await getSubscriptionStatus();
+        if (!subscription.allowed) {
+          await setJobStatus(jobId, "failed", {
+            error: `Subscription required. ${subscription.reason ?? "Upgrade to generate meal plans."}`,
+          });
+          return NextResponse.json(
+            { error: "Subscription required" },
+            { status: 402 }
+          );
+        }
         const { planId } = await assignMealTemplateToClient(mealTemplateId, job.client_id);
         planIds.push(planId);
       }
@@ -137,7 +148,10 @@ export async function POST(
       await setJobStatus(jobId, "succeeded", { result_plan_ids: planIds });
       return NextResponse.json({ ok: true, result_plan_ids: planIds });
     } catch (err) {
-      if ((err as { digest?: string })?.digest?.startsWith?.("NEXT_REDIRECT")) throw err;
+      if ((err as { digest?: string })?.digest?.startsWith?.("NEXT_REDIRECT")) {
+        await setJobStatus(jobId, "failed", { error: "Subscription required or session expired." });
+        return NextResponse.json({ error: "Subscription required or session expired." }, { status: 402 });
+      }
       const msg = err instanceof Error ? err.message : String(err);
       await setJobStatus(jobId, "failed", { error: msg });
       return NextResponse.json({ error: msg }, { status: 500 });
