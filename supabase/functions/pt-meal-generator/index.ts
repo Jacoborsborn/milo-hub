@@ -3782,6 +3782,18 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Autogen path: validate AUTOGEN_SECRET first (same pattern as pt-plan-generator)
+  if (body.autogen_secret != null) {
+    const autogenSecret = Deno.env.get("AUTOGEN_SECRET");
+    if (!autogenSecret || body.autogen_secret !== autogenSecret) {
+      console.warn(`[pt-meal-generator][${requestId}] Autogen secret missing or invalid`);
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  }
+
   const { mealInputs: rawMealInputs, model } = body;
 
   if (!rawMealInputs) {

@@ -115,6 +115,9 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     const appUrl = Deno.env.get("APP_URL") ?? "";
+    if (!appUrl) {
+      console.warn("[pt-autogen-drafts] APP_URL is not set; draft plan emails will not be sent. Set APP_URL in Edge Function secrets to your Next.js app URL (e.g. https://your-app.vercel.app).");
+    }
     const now = new Date();
     const today = toDateOnly(now);
     const todayDow = now.getUTCDay();
@@ -338,7 +341,10 @@ Deno.serve(async (req) => {
               const genRes = await fetch(`${supabaseUrl}/functions/v1/pt-meal-generator`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mealInputs }),
+                body: JSON.stringify({
+                  autogen_secret: autogenSecret,
+                  mealInputs,
+                }),
               });
 
               if (!genRes.ok) {

@@ -173,25 +173,41 @@ export default function AutomationPage() {
     loadAssignments();
   }, [loadAssignments]);
 
-  // Flush offline automation queue on load and when coming back online
+  // Flush offline automation queue on load and when coming back online.
+  // Deduplicate by client_id: keep only the most recent queued item per client to avoid duplicate program_assignments.
   const flushAutomationQueue = useCallback(async () => {
     if (!navigator.onLine) return;
     try {
       const items = await getAutomationQueue();
+      if (items.length === 0) return;
+
+      const latestByClient = new Map<string, (typeof items)[0]>();
       for (const item of items) {
+        const clientId = item.payload.client_id;
+        const existing = latestByClient.get(clientId);
+        if (!existing || item.createdAt > existing.createdAt) {
+          latestByClient.set(clientId, item);
+        }
+      }
+      const toApply = [...latestByClient.values()];
+
+      for (const item of toApply) {
         try {
           await createAutomationAssignment(item.payload);
-          await removeFromAutomationQueue(item.id);
         } catch (e) {
           addToast(
             e instanceof Error ? e.message : "Failed to save queued automation.",
             "error"
           );
         }
+        await removeFromAutomationQueue(item.id);
       }
-      if (items.length > 0) {
-        loadAssignments();
+      for (const item of items) {
+        if (!toApply.includes(item)) {
+          await removeFromAutomationQueue(item.id);
+        }
       }
+      loadAssignments();
     } catch {
       // IndexedDB not available or get failed
     }

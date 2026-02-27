@@ -7,23 +7,43 @@ import {
 } from "@/lib/email/resend";
 import { emailAlreadySent, logEmailSent } from "@/lib/email/check-and-log";
 
+/** Allow cron route to wait for edge function + optional emails (Vercel Pro: up to 300s). */
+export const maxDuration = 300;
+
 /**
  * Cron endpoint: call once daily to run pt-autogen-drafts.
  * Secure with CRON_SECRET or AUTOGEN_SECRET in env.
  *
- * Vercel Cron (vercel.json) calls this at 06:00 UTC and sends Authorization: Bearer <CRON_SECRET>.
- * Also accepts body { "secret": "..." } for manual calls.
+ * Vercel Cron (vercel.json) sends GET at 06:00 UTC with Authorization: Bearer <CRON_SECRET>.
+ * POST is supported for manual calls with body { "secret": "..." }.
  */
-export async function POST(req: Request) {
-  const authHeader = req.headers.get("Authorization");
-  const secret =
-    authHeader?.replace("Bearer ", "").trim() ||
-    (await req.json().catch(() => ({}))).secret;
+export async function GET(req: Request) {
+  const secret = req.headers.get("Authorization")?.replace("Bearer ", "").trim() ?? null;
   const expected = process.env.CRON_SECRET || process.env.AUTOGEN_SECRET;
-  if (!expected || secret !== expected) {
+  if (!expected || !secret || secret !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  return runAutogenCron();
+}
 
+export async function POST(req: Request) {
+  let secret: string | null = req.headers.get("Authorization")?.replace("Bearer ", "").trim() ?? null;
+  if (!secret) {
+    try {
+      const body = await req.json().catch(() => ({}));
+      secret = (body as { secret?: string }).secret ?? null;
+    } catch {
+      // no body
+    }
+  }
+  const expected = process.env.CRON_SECRET || process.env.AUTOGEN_SECRET;
+  if (!expected || !secret || secret !== expected) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return runAutogenCron();
+}
+
+async function runAutogenCron() {
   console.log("Autogen cron invoked");
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -38,7 +58,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        secret: process.env.AUTOGEN_SECRET || expected,
+        secret: process.env.AUTOGEN_SECRET || process.env.CRON_SECRET,
       }),
     });
     const data = await res.json().catch(() => ({}));
