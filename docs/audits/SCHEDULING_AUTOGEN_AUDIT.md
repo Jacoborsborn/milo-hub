@@ -162,3 +162,4 @@ The chain breaks if: (1) cron is never invoked, (2) `generate_on_dow` falls outs
 | `SUPABASE_URL` | Yes | Auto-injected by Supabase; ensure the function has it. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | For server-side DB and invoking other functions. |
 | `AUTOGEN_SECRET` | Yes | Must match the value in Vercel; validated in the function body. |
+| `APP_URL` | Yes (for email) | Full Next.js app URL (e.g. `https://your-app.vercel.app`). If unset, the "Your draft plan" email is never sent. |

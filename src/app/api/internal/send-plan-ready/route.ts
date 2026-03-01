@@ -5,11 +5,20 @@ import { emailAlreadySent, logEmailSent } from "@/lib/email/check-and-log";
 /**
  * Internal endpoint: send "autogen plan ready" email.
  * Called by pt-autogen-drafts edge function after inserting a draft plan.
- * Secured by x-internal-secret (CRON_SECRET).
+ * Secured by x-internal-secret (CRON_SECRET or AUTOGEN_SECRET).
  */
 export async function POST(req: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET ?? null;
+  const autogenSecret = process.env.AUTOGEN_SECRET ?? null;
+  if (!cronSecret && !autogenSecret) {
+    return NextResponse.json(
+      { error: "Server not configured: set AUTOGEN_SECRET or CRON_SECRET" },
+      { status: 503 }
+    );
+  }
   const secret = req.headers.get("x-internal-secret");
-  if (secret !== process.env.CRON_SECRET && secret !== process.env.AUTOGEN_SECRET) {
+  const valid = secret === cronSecret || secret === autogenSecret;
+  if (!valid) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

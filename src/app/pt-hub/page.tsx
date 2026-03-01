@@ -201,7 +201,7 @@ export default function PtHubLandingPage() {
           {/* Dashboard image */}
           <div className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-md">
             <div className="flex items-center justify-between px-1 pb-3">
-              <div className="text-sm font-semibold text-neutral-900">Your dashboard</div>
+              <div className="text-sm font-semibold text-neutral-900">How it works</div>
               <div className="text-xs text-neutral-400">What you'll use on laptop</div>
             </div>
             <ExpandableDashboardVideo />

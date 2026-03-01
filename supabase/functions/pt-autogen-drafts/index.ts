@@ -7,7 +7,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
+  "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info, x-autogen-secret",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -104,9 +104,30 @@ Deno.serve(async (req) => {
     }
 
     const authHeader = req.headers.get("Authorization");
-    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
-    const secret = body.secret ?? authHeader?.replace("Bearer ", "");
+    const headerSecret = req.headers.get("x-autogen-secret");
+    let body: Record<string, unknown> = {};
+    if (req.method === "POST") {
+      const ct = req.headers.get("content-type") ?? "";
+      try {
+        if (ct.includes("application/json")) {
+          body = await req.json();
+        } else {
+          const text = await req.text();
+          body = text ? JSON.parse(text) : {};
+        }
+      } catch {
+        body = {};
+      }
+    }
+    const rawSecret =
+      headerSecret?.trim() ??
+      (body.secret as string | undefined) ??
+      (body.autogen_secret as string | undefined) ??
+      authHeader?.replace(/^\s*Bearer\s+/i, "").trim();
+    const secret = typeof rawSecret === "string" ? rawSecret.trim() : "";
     if (secret !== autogenSecret) {
+      const source = headerSecret !== undefined && headerSecret !== null ? "header" : body?.secret !== undefined ? "body.secret" : body?.autogen_secret !== undefined ? "body.autogen_secret" : authHeader ? "Authorization" : "none";
+      console.warn("[pt-autogen-drafts] Unauthorized: source=" + source + ", receivedLen=" + secret.length + ", expectedLen=" + autogenSecret.length);
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -143,7 +164,11 @@ Deno.serve(async (req) => {
     for (const a of assignments ?? []) {
       try {
         const assignDow = a.generate_on_dow ?? 6;
-        if (todayDow !== assignDow) continue;
+        console.log(`[pt-autogen-drafts] assignment ${a.id} | todayDow=${todayDow} assignDow=${assignDow} | inNextWeekWindow check coming`);
+        if (todayDow !== assignDow) {
+          console.log(`[pt-autogen-drafts] SKIPPED ${a.id} — DOW mismatch (today=${todayDow}, configured=${assignDow})`);
+          continue;
+        }
 
         const startDate = parseDate(a.start_date);
         const todayDate = parseDate(today);
@@ -176,7 +201,10 @@ Deno.serve(async (req) => {
         const inNextWeekWindow = today >= windowStartStr && today <= nextWeekStart;
         const inWeek1Window = today >= week1WindowStartStr && today <= week1Start;
 
-        if (!inNextWeekWindow && !inWeek1Window) continue;
+        if (!inNextWeekWindow && !inWeek1Window) {
+          console.log(`[pt-autogen-drafts] SKIPPED ${a.id} — outside window | today=${today} nextWeekWindow=${windowStartStr}→${nextWeekStart} week1Window=${week1WindowStartStr}→${week1Start}`);
+          continue;
+        }
 
         // Use the right target week
         const targetWeekNumber = inWeek1Window ? 1 : nextWeekNumber;
@@ -184,6 +212,7 @@ Deno.serve(async (req) => {
 
         const autoWorkouts = a.auto_workouts_enabled !== false && a.workout_template_id;
         const autoMeals = a.auto_meals_enabled === true && a.meal_template_id;
+        console.log(`[pt-autogen-drafts] PROCESSING ${a.id} | targetWeek=${targetWeekNumber} | autoMeals=${!!autoMeals} | autoWorkouts=${!!autoWorkouts}`);
 
         if (autoWorkouts) {
           const { data: existingWorkout } = await supabase

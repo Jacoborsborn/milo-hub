@@ -19,7 +19,7 @@ export const maxDuration = 300;
  */
 export async function GET(req: Request) {
   const secret = req.headers.get("Authorization")?.replace("Bearer ", "").trim() ?? null;
-  const expected = process.env.CRON_SECRET || process.env.AUTOGEN_SECRET;
+  const expected = process.env.AUTOGEN_SECRET || process.env.CRON_SECRET;
   if (!expected || !secret || secret !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       // no body
     }
   }
-  const expected = process.env.CRON_SECRET || process.env.AUTOGEN_SECRET;
+  const expected = process.env.AUTOGEN_SECRET || process.env.CRON_SECRET;
   if (!expected || !secret || secret !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -54,12 +54,14 @@ async function runAutogenCron() {
   }
 
   try {
+    const cronSecret = process.env.AUTOGEN_SECRET || process.env.CRON_SECRET;
     const res = await fetch(`${supabaseUrl}/functions/v1/pt-autogen-drafts`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        secret: process.env.AUTOGEN_SECRET || process.env.CRON_SECRET,
-      }),
+      headers: {
+        "Content-Type": "application/json",
+        "x-autogen-secret": cronSecret ?? "",
+      },
+      body: JSON.stringify({ secret: cronSecret }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
