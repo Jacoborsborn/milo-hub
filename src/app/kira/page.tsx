@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Bebas_Neue, DM_Sans } from "next/font/google";
 import "./kira.css";
@@ -23,6 +23,14 @@ type Plan = "monthly" | "bundle";
 type SubmitState = "idle" | "loading" | "success" | "error";
 
 export default function KiraPage() {
+  return (
+    <Suspense>
+      <KiraPageInner />
+    </Suspense>
+  );
+}
+
+function KiraPageInner() {
   const [plan, setPlan] = useState<Plan>("bundle");
   const [goal, setGoal] = useState("");
   const [fitness, setFitness] = useState("");
