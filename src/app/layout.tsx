@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="font-sans antialiased min-h-screen">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body className="font-sans antialiased min-h-screen" suppressHydrationWarning>
         {children}
         {/* Meta Pixel Code */}
         <Script id="meta-pixel" strategy="afterInteractive">

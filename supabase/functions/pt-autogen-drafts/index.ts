@@ -164,55 +164,50 @@ Deno.serve(async (req) => {
     for (const a of assignments ?? []) {
       try {
         const assignDow = a.generate_on_dow ?? 6;
-        console.log(`[pt-autogen-drafts] assignment ${a.id} | todayDow=${todayDow} assignDow=${assignDow} | inNextWeekWindow check coming`);
+        console.log(`[pt-autogen-drafts] assignment ${a.id} | todayDow=${todayDow} assignDow=${assignDow} | start_date=${a.start_date} | leadDays=${a.autogen_lead_days ?? 2}`);
+        
+        // If today's day of week doesn't match, skip (this is a weekly recurring job)
         if (todayDow !== assignDow) {
           console.log(`[pt-autogen-drafts] SKIPPED ${a.id} — DOW mismatch (today=${todayDow}, configured=${assignDow})`);
           continue;
         }
 
+        // Day matches - always generate! Calculate which week to generate for based on start_date
         const startDate = parseDate(a.start_date);
         const todayDate = parseDate(today);
+        const leadDays = Math.min(6, Math.max(0, a.autogen_lead_days ?? 2));
 
-        // If start_date is in the future, generate for week 1 starting at start_date
-        // If start_date is today or past, calculate which week we're in
+        // Calculate which week we're in relative to start_date
         const diffMs = todayDate.getTime() - startDate.getTime();
         const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000));
-
-        // Clamp to week 1 minimum (handles same-day or future start_date)
         const currentWeekNumber = Math.max(1, Math.floor(diffDays / 7) + 1);
         const nextWeekNumber = currentWeekNumber + 1;
 
+        // Calculate next week start date (the Monday of next week relative to start_date)
         const nextWeekStartDays = (nextWeekNumber - 1) * 7;
         const nextWeekStartDate = new Date(startDate);
         nextWeekStartDate.setUTCDate(startDate.getUTCDate() + nextWeekStartDays);
         const nextWeekStart = toDateOnly(nextWeekStartDate);
 
-        const leadDays = Math.min(6, Math.max(0, a.autogen_lead_days ?? 2));
-        const windowStart = new Date(nextWeekStart);
-        windowStart.setUTCDate(windowStart.getUTCDate() - leadDays);
-        const windowStartStr = toDateOnly(windowStart);
+        // Calculate current week start date
+        const currentWeekStartDays = (currentWeekNumber - 1) * 7;
+        const currentWeekStartDate = new Date(startDate);
+        currentWeekStartDate.setUTCDate(startDate.getUTCDate() + currentWeekStartDays);
+        const currentWeekStart = toDateOnly(currentWeekStartDate);
 
-        // Also allow generating for week 1 if start_date is today or within lead window
-        const week1Start = toDateOnly(startDate);
-        const week1WindowStart = new Date(startDate);
-        week1WindowStart.setUTCDate(startDate.getUTCDate() - leadDays);
-        const week1WindowStartStr = toDateOnly(week1WindowStart);
+        // If today is within leadDays before next week start, generate for next week
+        // Otherwise generate for current week
+        const daysUntilNextWeek = Math.floor((parseDate(nextWeekStart).getTime() - todayDate.getTime()) / (24 * 60 * 60 * 1000));
+        const shouldGenerateNextWeek = daysUntilNextWeek >= 0 && daysUntilNextWeek <= leadDays;
 
-        const inNextWeekWindow = today >= windowStartStr && today <= nextWeekStart;
-        const inWeek1Window = today >= week1WindowStartStr && today <= week1Start;
-
-        if (!inNextWeekWindow && !inWeek1Window) {
-          console.log(`[pt-autogen-drafts] SKIPPED ${a.id} — outside window | today=${today} nextWeekWindow=${windowStartStr}→${nextWeekStart} week1Window=${week1WindowStartStr}→${week1Start}`);
-          continue;
-        }
-
-        // Use the right target week
-        const targetWeekNumber = inWeek1Window ? 1 : nextWeekNumber;
-        const targetWeekStart = inWeek1Window ? week1Start : nextWeekStart;
+        const targetWeekNumber = shouldGenerateNextWeek ? nextWeekNumber : currentWeekNumber;
+        const targetWeekStart = shouldGenerateNextWeek ? nextWeekStart : currentWeekStart;
+        
+        console.log(`[pt-autogen-drafts] PROCESSING ${a.id} | targetWeek=${targetWeekNumber} | targetWeekStart=${targetWeekStart} | daysUntilNextWeek=${daysUntilNextWeek} | shouldGenerateNextWeek=${shouldGenerateNextWeek}`);
 
         const autoWorkouts = a.auto_workouts_enabled !== false && a.workout_template_id;
         const autoMeals = a.auto_meals_enabled === true && a.meal_template_id;
-        console.log(`[pt-autogen-drafts] PROCESSING ${a.id} | targetWeek=${targetWeekNumber} | autoMeals=${!!autoMeals} | autoWorkouts=${!!autoWorkouts}`);
+        console.log(`[pt-autogen-drafts] PROCESSING ${a.id} | targetWeek=${targetWeekNumber} | targetWeekStart=${targetWeekStart} | autoMeals=${!!autoMeals} | autoWorkouts=${!!autoWorkouts}`);
 
         if (autoWorkouts) {
           const { data: existingWorkout } = await supabase

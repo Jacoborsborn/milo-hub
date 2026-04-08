@@ -1,0 +1,3 @@
+# Edge Function config. Add other [functions.<name>] blocks as needed.
+[functions.pt-autogen-drafts]
+verify_jwt = false

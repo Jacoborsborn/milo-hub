@@ -1,0 +1,605 @@
+/* ============================================================
+   KIRA MEI — Isolated brand styles
+   All rules scoped under .kira-root to prevent bleed into Milo.
+   ============================================================ */
+
+.kira-root {
+  --black: #0a0a0a;
+  --white: #f5f2ee;
+  --grey: #1a1a1a;
+  --mid: #2a2a2a;
+  --muted: #888;
+  --accent: #c8ff00;
+  --border: #222;
+
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--kira-font-dm-sans), 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100svh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.kira-root * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Noise overlay (replaces body::before) */
+.kira-noise {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.35;
+}
+
+/* ── HERO ── */
+.kira-root .hero {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 1fr;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.kira-root .hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 2.5rem;
+  padding-bottom: 3rem;
+  z-index: 2;
+  position: relative;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+  animation: kiraFadeUp 0.7s 0.1s both;
+}
+
+.kira-root .hero-tag {
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.kira-root .hero-tag::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.kira-root .hero h1 {
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: clamp(4rem, 10vw, 8rem);
+  line-height: 0.88;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+}
+
+.kira-root .hero h1 span {
+  color: var(--accent);
+  display: block;
+}
+
+.kira-root .hero-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 320px;
+  margin-bottom: 2rem;
+}
+
+.kira-root .hero-cta {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--black);
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  padding: 0.9rem 1.8rem;
+  text-decoration: none;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.kira-root .hero-cta:hover { background: var(--white); }
+
+.kira-root .hero-right {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.kira-root .hero-right img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  filter: grayscale(15%);
+}
+
+/* ── LAUNCH BADGE ── */
+.kira-root .launch-badge {
+  position: absolute;
+  top: 2rem;
+  left: 2.5rem;
+  background: var(--accent);
+  color: var(--black);
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.75rem;
+  z-index: 3;
+}
+
+/* ── STATS ── */
+.kira-root .stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.kira-root .stat {
+  padding: 1.75rem 2rem;
+  border-right: 1px solid var(--border);
+}
+
+.kira-root .stat:last-child { border-right: none; }
+
+.kira-root .stat-num {
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.kira-root .stat-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── SECTION ── */
+.kira-root .section {
+  padding: 4rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.kira-root .section-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.kira-root .section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── INCLUDES ── */
+.kira-root .includes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.kira-root .include-item {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--border);
+  padding-right: 2rem;
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+
+.kira-root .include-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.kira-root .include-item:nth-child(odd) {
+  border-right: 1px solid var(--border);
+}
+
+.kira-root .include-num {
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: 0.9rem;
+  color: var(--muted);
+  min-width: 1.8rem;
+  padding-top: 0.15rem;
+}
+
+.kira-root .include-content h3 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.kira-root .include-content p {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── PRICING ── */
+.kira-root .pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.kira-root .price-card {
+  border: 1px solid var(--border);
+  padding: 2rem 1.75rem;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.kira-root .price-card:hover { border-color: var(--accent); }
+
+.kira-root .price-card.featured {
+  border-color: var(--accent);
+  background: rgba(200,255,0,0.03);
+}
+
+.kira-root .price-badge {
+  position: absolute;
+  top: -1px;
+  right: 1.5rem;
+  background: var(--accent);
+  color: var(--black);
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.6rem;
+}
+
+.kira-root .price-plan {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.kira-root .price-amount {
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1;
+  color: var(--white);
+  margin-bottom: 0.25rem;
+}
+
+.kira-root .price-amount span {
+  font-size: 1.2rem;
+  color: var(--muted);
+  font-family: var(--kira-font-dm-sans), 'DM Sans', sans-serif;
+  font-weight: 300;
+}
+
+.kira-root .price-per {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.kira-root .price-saving {
+  font-size: 0.75rem;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.kira-root .price-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.kira-root .price-features li {
+  font-size: 0.78rem;
+  color: var(--muted);
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.kira-root .price-features li::before {
+  content: '→';
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ── FORM ── */
+.kira-root .form-section { padding: 4rem 2.5rem; }
+
+.kira-root .form-intro { margin-bottom: 3rem; }
+
+.kira-root .form-intro h2 {
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  line-height: 0.9;
+  margin-bottom: 1rem;
+}
+
+.kira-root .form-intro p {
+  font-size: 0.83rem;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 420px;
+}
+
+.kira-root .form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.kira-root .field {
+  border-bottom: 1px solid var(--border);
+  padding: 1.4rem 0;
+  position: relative;
+}
+
+.kira-root .field label {
+  display: block;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.65rem;
+  transition: color 0.2s;
+}
+
+.kira-root .field:focus-within label { color: var(--accent); }
+
+.kira-root .field input,
+.kira-root .field select,
+.kira-root .field textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--white);
+  font-family: var(--kira-font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 300;
+  padding: 0;
+  appearance: none;
+}
+
+.kira-root .field select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0 center;
+  padding-right: 1.5rem;
+}
+
+.kira-root .field select option { background: #1a1a1a; color: var(--white); }
+
+.kira-root .field textarea {
+  resize: none;
+  min-height: 70px;
+  line-height: 1.65;
+}
+
+.kira-root .field input::placeholder,
+.kira-root .field textarea::placeholder { color: #333; }
+
+/* ── OPTION BUTTONS ── */
+.kira-root .options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+}
+
+.kira-root .option-btn {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--kira-font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.kira-root .option-btn:hover { border-color: #555; color: var(--white); }
+
+.kira-root .option-btn.selected {
+  border-color: var(--accent);
+  background: rgba(200,255,0,0.05);
+  color: var(--accent);
+}
+
+/* ── PLAN SELECTOR ── */
+.kira-root .plan-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+}
+
+.kira-root .plan-opt {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  font-family: var(--kira-font-dm-sans), 'DM Sans', sans-serif;
+}
+
+.kira-root .plan-opt:hover { border-color: #555; }
+
+.kira-root .plan-opt.selected {
+  border-color: var(--accent);
+  background: rgba(200,255,0,0.04);
+}
+
+.kira-root .plan-opt-name {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.kira-root .plan-opt.selected .plan-opt-name { color: var(--accent); }
+
+.kira-root .plan-opt-price {
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  color: var(--white);
+  line-height: 1;
+}
+
+.kira-root .plan-opt-save {
+  font-size: 0.7rem;
+  color: var(--accent);
+  margin-top: 0.2rem;
+}
+
+/* ── SUBMIT ── */
+.kira-root .submit-area {
+  padding-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.kira-root .submit-note {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.kira-root .submit-note strong { color: var(--white); font-weight: 500; }
+
+.kira-root .btn-submit {
+  background: var(--accent);
+  color: var(--black);
+  border: none;
+  padding: 1.2rem 2rem;
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.kira-root .btn-submit:hover { background: var(--white); transform: translateY(-1px); }
+.kira-root .btn-submit:disabled { pointer-events: none; opacity: 0.6; }
+
+/* ── ERROR MESSAGE ── */
+.kira-root .submit-error {
+  font-size: 0.78rem;
+  color: #ff6b6b;
+  padding: 0.75rem 0;
+}
+
+/* ── SUCCESS ── */
+.kira-root .success-screen {
+  display: none;
+  padding: 4rem 2.5rem;
+  min-height: 50svh;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.kira-root .success-screen.visible { display: flex; }
+
+.kira-root .success-tag {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+
+.kira-root .success-screen h2 {
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 10vw, 6rem);
+  line-height: 0.9;
+  margin-bottom: 1.5rem;
+}
+
+.kira-root .success-screen p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 380px;
+}
+
+/* ── FOOTER ── */
+.kira-root footer {
+  padding: 1.75rem 2.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.kira-root footer span {
+  font-size: 0.68rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+.kira-root .footer-name {
+  font-family: var(--kira-font-bebas), 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  color: var(--white);
+  letter-spacing: 0.1em;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 600px) {
+  .kira-root .stats { grid-template-columns: 1fr 1fr; }
+  .kira-root .stat:nth-child(2) { border-right: none; }
+  .kira-root .stat:nth-child(3) { border-top: 1px solid var(--border); }
+  .kira-root .includes-grid { grid-template-columns: 1fr; }
+  .kira-root .include-item:nth-child(odd) { border-right: none; }
+  .kira-root .pricing-grid { grid-template-columns: 1fr; }
+  .kira-root .options-grid { grid-template-columns: 1fr; }
+  .kira-root .plan-selector { grid-template-columns: 1fr; }
+  .kira-root .section { padding: 3rem 1.5rem; }
+  .kira-root .form-section { padding: 3rem 1.5rem; }
+}
+
+@keyframes kiraFadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
